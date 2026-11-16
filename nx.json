@@ -86,5 +86,6 @@
       "conventionalCommits": true,
       "preVersionCommand": "pnpm nx run-many -t build"
     }
-  }
+  },
+  "nxCloudId": "6afb82cb9481d651a924c5bc"
 }
