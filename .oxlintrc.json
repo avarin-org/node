@@ -1,0 +1,115 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "import", "jsdoc", "node", "oxc", "promise", "typescript", "unicorn", "vitest"],
+  "categories": {
+    "correctness": "error",
+    "nursery": "error",
+    "pedantic": "error",
+    "perf": "error",
+    "restriction": "error",
+    "style": "error",
+    "suspicious": "error"
+  },
+  "rules": {
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "func-style": ["error", "declaration"],
+    "id-length": "allow",
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+    "import/group-exports": "allow",
+    "import/no-default-export": "allow",
+    "import/no-named-export": "allow",
+    "import/no-nodejs-modules": "allow",
+    "import/prefer-default-export": "allow",
+    "import/no-relative-parent-imports": "allow",
+    "jsdoc/require-param-type": "allow",
+    "jsdoc/require-returns-type": "allow",
+    "max-classes-per-file": ["error", { "max": 1 }],
+    "max-depth": "allow",
+    "max-lines": "allow",
+    "max-lines-per-function": "allow",
+    "max-nested-callbacks": "allow",
+    "max-params": "allow",
+    "max-statements": "allow",
+    "new-cap": ["error", { "capIsNew": false, "newIsCap": true }],
+    "no-continue": "allow",
+    "no-duplicate-imports": ["error", { "allowSeparateTypeImports": true }],
+    "no-eq-null": "allow",
+    "no-inner-declarations": ["error", "both", { "namespaces": "allow" }],
+    "no-magic-numbers": [
+      "error",
+      {
+        "detectObjects": false,
+        "enforceConst": true,
+        "ignoreArrayIndexes": true,
+        "ignoreClassFieldInitialValues": false,
+        "ignoreDefaultValues": false,
+        "ignoreEnums": true,
+        "ignoreNumericLiteralTypes": true,
+        "ignoreReadonlyClassProperties": true,
+        "ignoreTypeIndexes": true
+      }
+    ],
+    "no-ternary": "allow",
+    "no-use-before-define": ["error", { "allowNamedExports": true }],
+    "one-var": ["error", "never"],
+    "prefer-const": ["error", { "destructuring": "all" }],
+    "sort-imports": ["error", { "allowSeparatedGroups": true }],
+    "typescript/consistent-return": "allow",
+    "typescript/consistent-type-imports": [
+      "error",
+      { "disallowTypeAnnotations": true, "fixStyle": "separate-type-imports", "prefer": "type-imports" }
+    ],
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/parameter-properties": ["error", { "prefer": "parameter-property" }],
+    "unicorn/no-null": "allow",
+    "unicorn/no-typeof-undefined": "allow",
+    "vitest/consistent-test-filename": ["error", { "pattern": ".*\\.spec\\.ts$" }],
+    "vitest/no-importing-vitest-globals": "allow",
+    "vitest/prefer-expect-assertions": "allow",
+    "vitest/prefer-importing-vitest-globals": "allow",
+    "vitest/prefer-to-be-falsy": "allow",
+    "vitest/require-test-timeout": "allow",
+    "vitest/prefer-to-be-truthy": "allow"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.{spec,test}.{js,jsx,ts,tsx}"],
+      "globals": {
+        "afterAll": "readonly",
+        "afterEach": "readonly",
+        "assert": "readonly",
+        "assertType": "readonly",
+        "beforeAll": "readonly",
+        "beforeEach": "readonly",
+        "chai": "readonly",
+        "describe": "readonly",
+        "expect": "readonly",
+        "expectTypeOf": "readonly",
+        "it": "readonly",
+        "onTestFailed": "readonly",
+        "onTestFinished": "readonly",
+        "suite": "readonly",
+        "test": "readonly",
+        "vi": "readonly",
+        "vitest": "readonly"
+      },
+      "rules": {
+        "no-magic-numbers": "allow",
+        "no-undefined": "allow",
+        "typescript/no-explicit-any": "allow",
+        "typescript/no-unsafe-argument": "allow",
+        "typescript/no-unsafe-enum-assignment": "allow",
+        "typescript/no-unsafe-type-assertion": "allow"
+      }
+    }
+  ],
+  "env": {
+    "builtin": true
+  },
+  "options": {
+    "reportUnusedDisableDirectives": "error",
+    "respectEslintDisableDirectives": true,
+    "typeAware": true,
+    "typeCheck": true
+  }
+}

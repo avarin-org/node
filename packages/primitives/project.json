@@ -1,0 +1,12 @@
+{
+  "name": "@avarin/primitives",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/primitives/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc"
+    }
+  },
+  "tags": ["scope:shared", "type:util"]
+}
