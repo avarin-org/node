@@ -1,6 +1,6 @@
 {
   "name": "@avarin/primitives",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Enhanced primitives functionalities for NodeJS.",
   "homepage": "https://github.com/avarin-org/node/tree/main/packages/primitives#readme",
   "bugs": {
