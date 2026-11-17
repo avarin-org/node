@@ -1,13 +1,58 @@
 {
   "name": "@avarin/primitives",
   "version": "0.0.0",
+  "description": "Enhanced primitives functionalities for NodeJS.",
+  "homepage": "https://github.com/avarin-org/node/tree/main/packages/primitives#readme",
+  "bugs": {
+    "url": "https://github.com/avarin-org/node/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Revensky",
+    "url": "https://github.com/revensky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/avarin-org/node.git",
+    "directory": "packages/primitives"
+  },
   "files": [
     "dist",
     "!**/*.tsbuildinfo"
   ],
   "type": "module",
   "exports": {
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./enum": {
+      "@avarin/source": "./src/lib/enum/enum.ts",
+      "types": "./dist/lib/enum/enum.d.ts",
+      "import": "./dist/lib/enum/enum.js",
+      "default": "./dist/lib/enum/enum.js"
+    },
+    "./json": {
+      "@avarin/source": "./src/lib/json/json.ts",
+      "types": "./dist/lib/json/json.d.ts",
+      "import": "./dist/lib/json/json.js",
+      "default": "./dist/lib/json/json.js"
+    },
+    "./objects": {
+      "@avarin/source": "./src/lib/objects/objects.ts",
+      "types": "./dist/lib/objects/objects.d.ts",
+      "import": "./dist/lib/objects/objects.js",
+      "default": "./dist/lib/objects/objects.js"
+    },
+    "./strings": {
+      "@avarin/source": "./src/lib/strings/strings.ts",
+      "types": "./dist/lib/strings/strings.d.ts",
+      "import": "./dist/lib/strings/strings.js",
+      "default": "./dist/lib/strings/strings.js"
+    },
+    "./types": {
+      "@avarin/source": "./src/lib/types/types.ts",
+      "types": "./dist/lib/types/types.d.ts",
+      "import": "./dist/lib/types/types.js",
+      "default": "./dist/lib/types/types.js"
+    }
   },
   "dependencies": {
     "@swc/helpers": "~0.5.18"

@@ -11,7 +11,7 @@ const vitestConfig: ViteUserConfigFnObject = defineConfig(() => ({
     },
     environment: "node",
     include: ["{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
-    name: "@avarin/primitives",
+    name: "primitives",
     reporters: ["default"],
     watch: false,
   },

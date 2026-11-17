@@ -83,7 +83,7 @@
     },
     "groups": {
       "miscellaneous": {
-        "projects": ["@avarin/primitives"],
+        "projects": ["primitives"],
         "projectsRelationship": "independent"
       }
     },
