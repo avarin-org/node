@@ -16,7 +16,7 @@
     "composite": true,
     "customConditions": ["@avarin/source"],
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
     "emitDeclarationOnly": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      - name: Setup Pnpm
+        uses: pnpm/setup@v3
+        with:
+          version: 12
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Start Nx Cloud Workers
+        run: pnpm dlx nx-cloud start-workers
+
+      - name: Install dependencies
+        run: pnpm ci
+
+      - uses: nrwl/nx-set-shas@v5
+
+      - name: Run affected tasks
+        run: pnpm exec nx affected -t lint test build typecheck
+
+      - name: Self-Healing CI
+        run: pnpm exec nx fix-ci
+        if: always()

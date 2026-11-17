@@ -1,0 +1,5 @@
+worker-templates:
+  default:
+    workers: 3 linux-medium-js
+    stop-after:
+      - build

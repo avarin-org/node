@@ -1,0 +1,33 @@
+name: Publish
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup Pnpm
+        uses: pnpm/setup@v3
+        with:
+          version: 12
+          runtime: node@24
+          cache: false
+
+      - name: Run Nx Publish
+        run: |
+          pnpm exec nx run-many -t build
+          pnpm exec nx release publish

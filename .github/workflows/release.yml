@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      - name: Setup Pnpm
+        uses: pnpm/setup@v3
+        with:
+          version: 12
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Start Nx Cloud Workers
+        run: pnpm dlx nx-cloud start-workers
+
+      - name: Install dependencies
+        run: pnpm ci
+
+      - name: Configure Git User
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run Nx Release
+        run: pnpm nx release --skip-publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
