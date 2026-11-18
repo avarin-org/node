@@ -54,14 +54,22 @@
     "no-use-before-define": ["error", { "allowNamedExports": true }],
     "one-var": ["error", "never"],
     "prefer-const": ["error", { "destructuring": "all" }],
-    "sort-imports": ["error", { "allowSeparatedGroups": true }],
+    "sort-imports": ["error", { "allowSeparatedGroups": true, "ignoreDeclarationSort": true }],
+    "typescript/ban-types": "allow",
+    "typescript/no-confusing-void-expression": ["error", { "ignoreArrowShorthand": true }],
     "typescript/consistent-return": "allow",
     "typescript/consistent-type-imports": [
       "error",
-      { "disallowTypeAnnotations": true, "fixStyle": "separate-type-imports", "prefer": "type-imports" }
+      {
+        "disallowTypeAnnotations": true,
+        "fixStyle": "separate-type-imports",
+        "prefer": "type-imports"
+      }
     ],
+    "typescript/no-empty-object-type": "error",
     "typescript/no-import-type-side-effects": "error",
     "typescript/parameter-properties": ["error", { "prefer": "parameter-property" }],
+    "typescript/prefer-readonly-parameter-types": ["error", { "ignoreInferredTypes": true }],
     "unicorn/no-null": "allow",
     "unicorn/no-typeof-undefined": "allow",
     "vitest/consistent-test-filename": ["error", { "pattern": ".*\\.spec\\.ts$" }],
@@ -69,6 +77,7 @@
     "vitest/no-importing-vitest-globals": "allow",
     "vitest/prefer-expect-assertions": "allow",
     "vitest/prefer-importing-vitest-globals": "allow",
+    "vitest/prefer-lowercase-title": ["error", { "ignoreTopLevelDescribe": true }],
     "vitest/prefer-to-be-falsy": "allow",
     "vitest/require-test-timeout": "allow",
     "vitest/prefer-to-be-truthy": "allow"

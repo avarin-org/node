@@ -244,6 +244,9 @@ importers:
 
   packages/jose:
     dependencies:
+      '@avarin/primitives':
+        specifier: workspace:*
+        version: link:../primitives
       '@swc/helpers':
         specifier: ~0.5.18
         version: 0.5.24
