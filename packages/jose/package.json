@@ -1,0 +1,48 @@
+{
+  "name": "@avarin/jose",
+  "version": "0.0.0",
+  "description": "Implementation of the works of the JOSE Work Group.",
+  "keywords": [
+    "algorithm",
+    "encryption",
+    "jose",
+    "json",
+    "jwa",
+    "jwe",
+    "jwk",
+    "jwks",
+    "jws",
+    "jwt",
+    "key",
+    "keyset",
+    "set",
+    "signature",
+    "token",
+    "web"
+  ],
+  "homepage": "https://github.com/avarin-org/node/tree/main/packages/jose#readme",
+  "bugs": {
+    "url": "https://github.com/avarin-org/node/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Revensky",
+    "url": "https://github.com/revensky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/avarin-org/node.git",
+    "directory": "packages/jose"
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo"
+  ],
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@swc/helpers": "~0.5.18"
+  }
+}

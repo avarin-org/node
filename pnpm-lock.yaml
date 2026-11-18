@@ -242,6 +242,12 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(typescript@6.0.3)(vitest@5.0.5)
 
+  packages/jose:
+    dependencies:
+      '@swc/helpers':
+        specifier: ~0.5.18
+        version: 0.5.24
+
   packages/primitives:
     dependencies:
       '@swc/helpers':

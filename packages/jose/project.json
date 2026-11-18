@@ -1,0 +1,12 @@
+{
+  "name": "jose",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/jose/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc"
+    }
+  },
+  "tags": ["scope:shared", "type:util"]
+}

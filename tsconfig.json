@@ -5,6 +5,9 @@
   "references": [
     {
       "path": "./packages/primitives"
+    },
+    {
+      "path": "./packages/jose"
     }
   ]
 }
