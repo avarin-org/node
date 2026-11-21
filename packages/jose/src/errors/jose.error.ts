@@ -1,6 +1,10 @@
-/** Implementation of the Base JOSE Error. */
+/**
+ * Implementation of the Base JOSE Error.
+ */
 export abstract class JoseError extends Error {
-  /** Error Name. */
+  /**
+   * Error Name.
+   */
   public override readonly name: string = "JoseError";
 
   /**
@@ -9,7 +13,7 @@ export abstract class JoseError extends Error {
    * @param message Error Message.
    * @param options Error Options
    */
-  public constructor(message: string, options?: Readonly<ErrorOptions>) {
+  public constructor(message: string, options?: ErrorOptions) {
     super(message, options);
   }
 }

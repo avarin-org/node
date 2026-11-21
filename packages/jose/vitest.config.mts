@@ -6,7 +6,11 @@ const vitestConfig: ViteUserConfigFnObject = defineConfig(() => ({
   root: import.meta.dirname,
   test: {
     coverage: {
+      enabled: true,
+      exclude: ["**/dist/**", "**/node_modules/**"],
       provider: "v8" as const,
+      reportOnFailure: true,
+      reporter: ["html"],
       reportsDirectory: "./test-output/vitest/coverage",
     },
     environment: "node",

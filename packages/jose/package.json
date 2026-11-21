@@ -41,11 +41,23 @@
   "type": "module",
   "exports": {
     "./package.json": "./package.json",
-    ".": {
-      "@avarin/source": "./src/lib/index.ts",
-      "types": "./dist/lib/index.d.ts",
-      "import": "./dist/lib/index.js",
-      "default": "./dist/lib/index.js"
+    "./errors": {
+      "@avarin/source": "./src/errors/index.ts",
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js",
+      "default": "./dist/errors/index.js"
+    },
+    "./jwa": {
+      "@avarin/source": "./src/jwa/index.ts",
+      "types": "./dist/jwa/index.d.ts",
+      "import": "./dist/jwa/index.js",
+      "default": "./dist/jwa/index.js"
+    },
+    "./jwk": {
+      "@avarin/source": "./src/jwk/index.ts",
+      "types": "./dist/jwk/index.d.ts",
+      "import": "./dist/jwk/index.js",
+      "default": "./dist/jwk/index.js"
     }
   },
   "dependencies": {
