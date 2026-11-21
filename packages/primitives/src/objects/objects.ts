@@ -11,7 +11,6 @@ export namespace Objects {
       return false;
     }
 
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     const proto = Object.getPrototypeOf(data) as object | null;
 
     return proto === null || proto === Object.prototype || Object.getPrototypeOf(proto) === null;

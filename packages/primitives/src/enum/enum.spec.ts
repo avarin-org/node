@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { Enum } from "./enum.js";
+import { Enum } from "./enum.ts";
 
 enum IntEnum {
   One = 1,

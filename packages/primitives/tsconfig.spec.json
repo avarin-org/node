@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "outDir": "./out-tsc/vitest",
+    "rewriteRelativeImportExtensions": false,
     "types": ["vite/client", "node", "vitest"]
   },
   "include": [

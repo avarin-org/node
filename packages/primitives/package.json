@@ -24,34 +24,40 @@
   "exports": {
     "./package.json": "./package.json",
     "./enum": {
-      "@avarin/source": "./src/lib/enum/enum.ts",
-      "types": "./dist/lib/enum/enum.d.ts",
-      "import": "./dist/lib/enum/enum.js",
-      "default": "./dist/lib/enum/enum.js"
+      "@avarin/source": "./src/enum/enum.ts",
+      "types": "./dist/enum/enum.d.ts",
+      "import": "./dist/enum/enum.js",
+      "default": "./dist/enum/enum.js"
+    },
+    "./functions": {
+      "@avarin/source": "./src/functions/functions.ts",
+      "types": "./dist/functions/functions.d.ts",
+      "import": "./dist/functions/functions.js",
+      "default": "./dist/functions/functions.js"
     },
     "./json": {
-      "@avarin/source": "./src/lib/json/json.ts",
-      "types": "./dist/lib/json/json.d.ts",
-      "import": "./dist/lib/json/json.js",
-      "default": "./dist/lib/json/json.js"
+      "@avarin/source": "./src/json/json.ts",
+      "types": "./dist/json/json.d.ts",
+      "import": "./dist/json/json.js",
+      "default": "./dist/json/json.js"
     },
     "./objects": {
-      "@avarin/source": "./src/lib/objects/objects.ts",
-      "types": "./dist/lib/objects/objects.d.ts",
-      "import": "./dist/lib/objects/objects.js",
-      "default": "./dist/lib/objects/objects.js"
+      "@avarin/source": "./src/objects/objects.ts",
+      "types": "./dist/objects/objects.d.ts",
+      "import": "./dist/objects/objects.js",
+      "default": "./dist/objects/objects.js"
     },
     "./strings": {
-      "@avarin/source": "./src/lib/strings/strings.ts",
-      "types": "./dist/lib/strings/strings.d.ts",
-      "import": "./dist/lib/strings/strings.js",
-      "default": "./dist/lib/strings/strings.js"
+      "@avarin/source": "./src/strings/strings.ts",
+      "types": "./dist/strings/strings.d.ts",
+      "import": "./dist/strings/strings.js",
+      "default": "./dist/strings/strings.js"
     },
     "./types": {
-      "@avarin/source": "./src/lib/types/types.ts",
-      "types": "./dist/lib/types/types.d.ts",
-      "import": "./dist/lib/types/types.js",
-      "default": "./dist/lib/types/types.js"
+      "@avarin/source": "./src/types/types.ts",
+      "types": "./dist/types/types.d.ts",
+      "import": "./dist/types/types.js",
+      "default": "./dist/types/types.js"
     }
   },
   "dependencies": {

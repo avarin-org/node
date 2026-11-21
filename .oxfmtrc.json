@@ -1,5 +1,5 @@
 {
-  "jsdoc": true,
+  "jsdoc": { "commentLineStrategy": "multiline" },
   "sortImports": true,
   "sortPackageJson": true,
   "printWidth": 120

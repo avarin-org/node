@@ -2,7 +2,7 @@ import { Buffer } from "node:buffer";
 
 import { describe, expect, it } from "vitest";
 
-import { Objects } from "./objects.js";
+import { Objects } from "./objects.ts";
 
 const invalidPlainObjects: any[] = [
   undefined,

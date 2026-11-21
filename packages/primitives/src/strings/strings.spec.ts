@@ -3,17 +3,33 @@ import { timingSafeEqual } from "node:crypto";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Strings } from "./strings.js";
+import { Strings } from "./strings.ts";
 
 vi.mock(import("node:crypto"), { spy: true });
 
-describe("isEmpty()", () => {
-  it("should return false when the provided string is not empty.", () => {
-    expect(Strings.isEmpty("foobar")).toBe(false);
+const invalidStrings: any[] = [
+  undefined,
+  null,
+  true,
+  1,
+  1.2,
+  1n,
+  Symbol("a"),
+  Buffer,
+  Buffer.alloc(0),
+  () => 1,
+  {},
+  [],
+  "",
+];
+
+describe("isNonEmpty()", () => {
+  it.each(invalidStrings)("should return false when the provided data is not a non-empty string.", (str) => {
+    expect(Strings.isNonEmpty(str)).toBe(false);
   });
 
-  it("should return true when the provided string is empty.", () => {
-    expect(Strings.isEmpty("")).toBe(true);
+  it("should return true when the provided data is a non-empty string.", () => {
+    expect(Strings.isNonEmpty("a")).toBe(true);
   });
 });
 

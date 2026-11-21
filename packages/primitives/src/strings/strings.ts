@@ -4,13 +4,13 @@ import { timingSafeEqual } from "node:crypto";
 // oxlint-disable-next-line typescript/no-namespace
 export namespace Strings {
   /**
-   * Checks if the provided string is empty.
+   * Checks if the provided data is a non-empty string.
    *
-   * @param str String to be checked.
-   * @returns Whether or not the provided string is empty.
+   * @param data Data to be checked.
+   * @returns Whether or not the provided data is a non-empty string.
    */
-  export function isEmpty(str: string): boolean {
-    return str.trim() === "";
+  export function isNonEmpty(data: unknown): data is string {
+    return typeof data === "string" && data.trim() !== "";
   }
 
   /**

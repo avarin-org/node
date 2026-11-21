@@ -42,7 +42,6 @@ export namespace JSON {
     text: string,
     reviver?: (this: unknown, key: string, value: T[keyof T]) => T[keyof T],
   ): T {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return globalThis.JSON.parse(text, (key, value: T[keyof T]) =>
       stripForbiddenProperties<T>(key, value, reviver),
     ) as T;

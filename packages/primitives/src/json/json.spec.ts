@@ -2,7 +2,7 @@ import { Buffer } from "node:buffer";
 
 import { describe, expect, it } from "vitest";
 
-import { JSON } from "./json.js";
+import { JSON } from "./json.ts";
 
 describe("parse()", () => {
   it("should parse a safe json object as usual.", () => {
@@ -15,7 +15,7 @@ describe("parse()", () => {
     expect(JSON.parse<Type>('{"foo":"bar","baz":123}')).toStrictEqual<Type>({ baz: 123, foo: "bar" });
 
     expect(
-      // oxlint-disable-next-line vitest/no-conditional-in-test typescript/prefer-readonly-parameter-types
+      // oxlint-disable-next-line vitest/no-conditional-in-test
       JSON.parse<Type>('{"foo":"bar","baz":123}', (_, value) => (typeof value === "number" ? value * 2 : value)),
     ).toStrictEqual<Type>({ baz: 246, foo: "bar" });
   });
