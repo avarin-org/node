@@ -1,9 +1,18 @@
+import { check } from "./check/check.ts";
 import { create } from "./create/create.ts";
 import { generate } from "./generate/generate.ts";
 import { parse } from "./parse/parse.ts";
 import { register } from "./register/register.ts";
 
 interface JsonWebKeyMethods {
+  /**
+   * Checks if the provided data is a valid JSON Web Key Parameters object.
+   *
+   * @param parameters JSON Web Key Parameters.
+   * @returns Whether or not the provided data is a valid JSON Web Key Parameters object.
+   */
+  readonly check: typeof check;
+
   /**
    * Creates a JSON Web Key based on the provided Parameters.
    *
@@ -46,6 +55,7 @@ interface JsonWebKeyMethods {
 }
 
 export const jwk: JsonWebKeyMethods = {
+  check,
   create,
   generate,
   parse,
