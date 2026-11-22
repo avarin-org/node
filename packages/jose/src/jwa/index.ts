@@ -12,7 +12,7 @@ export type { CompressionAlgorithm } from "./jwe/zip/compression-algorithm.type.
 export type { Curve } from "./jwk/curve.type.ts";
 export type { EllipticCurveJsonWebKeyParameters } from "./jwk/ec/elliptic-curve.jsonwebkey.parameters.ts";
 export type { EllipticCurve } from "./jwk/ec/elliptic-curve.type.ts";
-export { JsonWebKeyBackend } from "./jwk/jsonwebkey.backend.ts";
+export { KeyTypeBackend } from "./jwk/key-type.backend.ts";
 export type { KeyOperation } from "./jwk/key-operation.type.ts";
 export type { KeyType } from "./jwk/key-type.type.ts";
 export type { OctetSequenceJsonWebKeyParameters } from "./jwk/oct/octet-sequence.jsonwebkey.parameters.ts";

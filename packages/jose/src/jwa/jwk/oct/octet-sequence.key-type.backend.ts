@@ -9,7 +9,7 @@ import { Strings } from "@avarin/primitives/strings";
 import { InvalidJsonWebKeyError } from "../../../errors/invalid-jsonwebkey.error.ts";
 import type { JsonWebKeyParameters } from "../../../jwk/jsonwebkey.parameters.ts";
 import type { JsonWebKey } from "../../../jwk/jsonwebkey.ts";
-import { JsonWebKeyBackend } from "../jsonwebkey.backend.ts";
+import { KeyTypeBackend } from "../key-type.backend.ts";
 import type { GenerateOctetSequenceJsonWebKeyOptions } from "./generate-octet-sequence-jsonwebkey.options.ts";
 import type { OctetSequenceJsonWebKeyParameters } from "./octet-sequence.jsonwebkey.parameters.ts";
 
@@ -17,18 +17,18 @@ import type { OctetSequenceJsonWebKeyParameters } from "./octet-sequence.jsonweb
 const randomBytesAsync = promisify(randomBytes);
 
 /**
- * Implementation of the Octet Sequence JSON Web Key Backend.
+ * Implementation of the Octet Sequence Key Type Backend.
  *
  * @see {@link https://www.rfc-editor.org/rfc/rfc7518.html#section-6.4|RFC 7518 Parameters for Symmetric Keys}
  */
-export class OctetSequenceJsonWebKeyBackend extends JsonWebKeyBackend<OctetSequenceJsonWebKeyParameters> {
+export class OctetSequenceKeyTypeBackend extends KeyTypeBackend<OctetSequenceJsonWebKeyParameters> {
   /**
-   * JSON Web Key Key Type supported by the JSON Web Key Backend.
+   * JSON Web Key Key Type.
    *
    * @see {@link https://www.rfc-editor.org/rfc/rfc7517.html#section-4.1|RFC 7517 "kty" (Key Type) Parameter}
    * @see {@link https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1|RFC 7518 "kty" (Key Type) Parameter Values}
    */
-  public static override readonly keyType = "oct" as const;
+  public readonly name = "oct" as const;
 
   /**
    * Generates a JSON Web Key based on the provided options.
@@ -39,7 +39,7 @@ export class OctetSequenceJsonWebKeyBackend extends JsonWebKeyBackend<OctetSeque
    * @throws {InvalidJsonWebKeyError} The provided additional JSON Web Key Parameters is invalid.
    * @throws {TypeError} The provided Generation Options is invalid.
    */
-  public static override async generate(
+  public async generate(
     options: GenerateOctetSequenceJsonWebKeyOptions,
     parameters: Partial<JsonWebKeyParameters> = {},
   ): Promise<JsonWebKey<OctetSequenceJsonWebKeyParameters>> {
@@ -66,22 +66,20 @@ export class OctetSequenceJsonWebKeyBackend extends JsonWebKeyBackend<OctetSeque
   /**
    * Creates a native Crypto Key.
    *
+   * @param parameters JSON Web Key Parameters.
    * @returns Native Crypto Key.
    */
-  public getCryptoKey(): KeyObject {
-    return createSecretKey(this.parameters.k, "base64url");
+  public getCryptoKey(parameters: OctetSequenceJsonWebKeyParameters): KeyObject {
+    return createSecretKey(parameters.k, "base64url");
   }
 
   /**
-   * Returns the JSON Web Key Parameters.
+   * Returns the Private Parameters of the JSON Web Key.
    *
-   * @param exportPrivate Exports the private parameters of the JSON Web key.
-   * @returns JSON Web Key Parameters.
+   * @returns JSON Web Key Private Parameters.
    */
-  // @ts-expect-error Export Private is not used.
-  // oxlint-disable-next-line no-unused-vars
-  public toJSON(exportPrivate?: boolean): OctetSequenceJsonWebKeyParameters {
-    return globalThis.structuredClone(this.parameters);
+  public getPrivateParameters(): string[] {
+    return [];
   }
 
   /**

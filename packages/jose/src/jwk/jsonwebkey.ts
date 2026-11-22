@@ -1,11 +1,11 @@
 import type { X509Certificate } from "node:crypto";
 
-import { Functions } from "@avarin/primitives/functions";
+import { Objects } from "@avarin/primitives/objects";
 import { Strings } from "@avarin/primitives/strings";
 
 import { InvalidJsonWebKeyError } from "../errors/invalid-jsonwebkey.error.ts";
-import { JSONWEBKEY_BACKEND_REGISTRY } from "../jwa/jwk/jsonwebkey.backend.registry.ts";
-import type { JsonWebKeyBackend } from "../jwa/jwk/jsonwebkey.backend.ts";
+import { KeyTypeBackend } from "../jwa/jwk/key-type.backend.js";
+import { KEY_TYPE_BACKEND_REGISTRY } from "../jwa/jwk/key-type.backend.registry.ts";
 import type { JsonWebKeyParameters } from "./jsonwebkey.parameters.ts";
 
 /**
@@ -15,14 +15,19 @@ import type { JsonWebKeyParameters } from "./jsonwebkey.parameters.ts";
  */
 export class JsonWebKey<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
   /**
-   * JSON Web Key Backend.
+   * Key Type Backend.
    */
-  readonly #backend: JsonWebKeyBackend<T>;
+  readonly #backend: KeyTypeBackend<T>;
 
   /**
    * JSON Web Key X.509 Certificate Chain.
    */
   #certificateChain!: X509Certificate[] | null;
+
+  /**
+   * JSON Web Key Parameters.
+   */
+  readonly #parameters: T;
 
   /**
    * JSON Web Key X.509 Certificate Chain.
@@ -50,7 +55,7 @@ export class JsonWebKey<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
    * JSON Web Key Parameters.
    */
   public get parameters(): T {
-    return this.#backend.parameters;
+    return this.#parameters;
   }
 
   /**
@@ -60,7 +65,8 @@ export class JsonWebKey<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
    * @throws {InvalidJsonWebKeyError} The provided JSON Web Key Parameters is invalid.
    */
   public constructor(parameters: T) {
-    this.#backend = this.getJsonWebKeyBackend(parameters);
+    this.#backend = this.getKeyTypeBackend(parameters);
+    this.#parameters = Objects.removeNullishValues(globalThis.structuredClone(parameters));
   }
 
   /**
@@ -71,27 +77,34 @@ export class JsonWebKey<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
    * @returns JSON Web Key Parameters.
    */
   public toJSON(exportPrivate = false): T {
-    return this.#backend.toJSON(exportPrivate);
+    const privateParameters = this.#backend.getPrivateParameters();
+    let entries = Object.entries(this.#parameters);
+
+    if (!exportPrivate) {
+      entries = entries.filter(([parameter]) => !privateParameters.includes(parameter));
+    }
+
+    return Object.fromEntries(entries) as T;
   }
 
   /**
-   * Returns the JSON Web Key Backend based on the JSON Web Key Parameters.
+   * Returns the Key Type Backend based on the JSON Web Key Parameters.
    *
    * @param parameters JSON Web Key Parameters.
-   * @returns JSON Web Key Backend.
+   * @returns Key Type Backend.
    * @throws {InvalidJsonWebKeyError} The provided JSON Web Key Parameters is invalid.
    */
-  private getJsonWebKeyBackend(parameters: T): JsonWebKeyBackend<T> {
+  private getKeyTypeBackend(parameters: T): KeyTypeBackend<T> {
     if (!("kty" in parameters) || !Strings.isNonEmpty(parameters.kty)) {
       throw new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "kty".');
     }
 
-    const Constructor = JSONWEBKEY_BACKEND_REGISTRY.find((backend) => backend.keyType === parameters.kty);
+    const keyTypeBackend = KEY_TYPE_BACKEND_REGISTRY.find((backend) => backend.name === parameters.kty);
 
-    if (!Functions.isClass(Constructor)) {
+    if (!(keyTypeBackend instanceof KeyTypeBackend)) {
       throw new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "kty".');
     }
 
-    return Reflect.construct(Constructor, [parameters]) as JsonWebKeyBackend<T>;
+    return keyTypeBackend as KeyTypeBackend<T>;
   }
 }

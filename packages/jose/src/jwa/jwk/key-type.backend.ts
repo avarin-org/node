@@ -1,7 +1,6 @@
 import type { KeyObject } from "node:crypto";
 import { URL } from "node:url";
 
-import { Objects } from "@avarin/primitives/objects";
 import { Strings } from "@avarin/primitives/strings";
 
 import { InvalidJsonWebKeyError } from "../../errors/invalid-jsonwebkey.error.ts";
@@ -9,22 +8,21 @@ import type { JsonWebKeyParameters } from "../../jwk/jsonwebkey.parameters.ts";
 import type { JsonWebKey } from "../../jwk/jsonwebkey.ts";
 import type { JoseAlgorithm } from "../jose/jose-algorithm.type.ts";
 import type { KeyOperation } from "./key-operation.type.ts";
-import type { KeyType } from "./key-type.type.ts";
 import type { PublicKeyUse } from "./public-key-use.type.ts";
 
-export abstract class JsonWebKeyBackend<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
+/**
+ * Implementation of the Key Type Backend.
+ *
+ * @see {@link https://www.rfc-editor.org/rfc/rfc7518.html#section-6|RFC 7518 Cryptographic Algorithms for Keys}
+ */
+export abstract class KeyTypeBackend<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
   /**
-   * JSON Web Key Key Type supported by the JSON Web Key Backend.
+   * JSON Web Key Key Type.
    *
    * @see {@link https://www.rfc-editor.org/rfc/rfc7517.html#section-4.1|RFC 7517 "kty" (Key Type) Parameter}
    * @see {@link https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1|RFC 7518 "kty" (Key Type) Parameter Values}
    */
-  public static readonly keyType: KeyType;
-
-  /**
-   * JSON Web Key Parameters.
-   */
-  public readonly parameters: T;
+  public abstract readonly name: T["kty"];
 
   /**
    * Supported JSON Web Key Public Key Uses.
@@ -99,17 +97,6 @@ export abstract class JsonWebKeyBackend<T extends JsonWebKeyParameters = JsonWeb
   ]);
 
   /**
-   * Instantiates a new JSON Web Key Backend.
-   *
-   * @param parameters JSON Web Key Parameters.
-   * @throws {InvalidJsonWebKeyError} The provided JSON Web Key Parameters is invalid.
-   */
-  public constructor(parameters: T) {
-    this.validate(parameters);
-    this.parameters = Objects.removeNullishValues(globalThis.structuredClone(parameters));
-  }
-
-  /**
    * Generates a JSON Web Key based on the provided options.
    *
    * @param options JSON Web Key Generation Options.
@@ -118,33 +105,25 @@ export abstract class JsonWebKeyBackend<T extends JsonWebKeyParameters = JsonWeb
    * @throws {InvalidJsonWebKeyError} The provided additional JSON Web Key Parameters is invalid.
    * @throws {TypeError} The provided Generation Options is invalid.
    */
-  // oxlint-disable-next-line require-await
-  public static async generate(
-    // @ts-expect-error Unused parameter.
-    // oxlint-disable-next-line no-unused-vars
+  public abstract generate(
     options: NodeJS.Dict<unknown>,
-    // @ts-expect-error Unused parameter.
-    // oxlint-disable-next-line no-unused-vars
     parameters?: Partial<JsonWebKeyParameters>,
-  ): Promise<JsonWebKey> {
-    throw new Error("Method not implemented.");
-  }
+  ): Promise<JsonWebKey<T>>;
 
   /**
    * Creates a native Crypto Key.
    *
+   * @param parameters JSON Web Key Parameters.
    * @returns Native Crypto Key.
    */
-  public abstract getCryptoKey(): KeyObject;
+  public abstract getCryptoKey(parameters: T): KeyObject;
 
   /**
-   * Returns the JSON Web Key Parameters.
+   * Returns the Private Parameters of the JSON Web Key.
    *
-   * @default exportPrivate false
-   * @param exportPrivate Exports the private parameters of the JSON Web key.
-   * @returns JSON Web Key Parameters.
+   * @returns JSON Web Key Private Parameters.
    */
-  public abstract toJSON(exportPrivate?: boolean): T;
+  public abstract getPrivateParameters(): string[];
 
   /**
    * Validates the provided JSON Web Key Parameters.
@@ -152,7 +131,7 @@ export abstract class JsonWebKeyBackend<T extends JsonWebKeyParameters = JsonWeb
    * @param parameters JSON Web Key Parameters.
    * @throws {InvalidJsonWebKeyError} The provided JSON Web Key Parameters is invalid.
    */
-  protected validate(parameters: T): void {
+  public validate(parameters: T): void {
     if ("use" in parameters && !this.isUseAValidPublicKeyUse(parameters.use)) {
       throw new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "use".');
     }

@@ -46,10 +46,10 @@ interface JsonWebKeyMethods {
   readonly parse: typeof parse;
 
   /**
-   * Registers the provided JSON Web Key Backend into the Registry.
+   * Registers the provided Key Type Backend into the Registry.
    *
-   * @param backend JSON Web Key Backend to be registered.
-   * @throws {TypeError} The provided JSON Web Key Backend is invalid or is already registered.
+   * @param backend Key Type Backend to be registered.
+   * @throws {TypeError} The provided Key Type Backend is invalid or is already registered.
    */
   readonly register: typeof register;
 }

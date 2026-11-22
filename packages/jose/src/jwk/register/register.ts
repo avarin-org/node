@@ -1,30 +1,21 @@
-import { Functions } from "@avarin/primitives/functions";
-import { Strings } from "@avarin/primitives/strings";
-
-import { JSONWEBKEY_BACKEND_REGISTRY } from "../../jwa/jwk/jsonwebkey.backend.registry.ts";
-import { JsonWebKeyBackend } from "../../jwa/jwk/jsonwebkey.backend.ts";
+import { KEY_TYPE_BACKEND_REGISTRY } from "../../jwa/jwk/key-type.backend.registry.ts";
+import { KeyTypeBackend } from "../../jwa/jwk/key-type.backend.ts";
 import type { JsonWebKeyParameters } from "../jsonwebkey.parameters.ts";
 
 /**
- * Registers the provided JSON Web Key Backend into the Registry.
+ * Registers the provided Key Type Backend into the Registry.
  *
- * @param backend JSON Web Key Backend to be registered.
- * @throws {TypeError} The provided JSON Web Key Backend is invalid or is already registered.
+ * @param backend Key Type Backend to be registered.
+ * @throws {TypeError} The provided Key Type Backend is invalid or is already registered.
  */
-export function register<T extends JsonWebKeyParameters = JsonWebKeyParameters>(
-  backend: typeof JsonWebKeyBackend<T>,
-): void {
-  if (
-    !Functions.isClass(backend) ||
-    !(backend.prototype instanceof JsonWebKeyBackend) ||
-    !Strings.isNonEmpty(backend.keyType)
-  ) {
-    throw new TypeError("The provided JSON Web Key Backend is invalid.");
+export function register<T extends JsonWebKeyParameters = JsonWebKeyParameters>(backend: KeyTypeBackend<T>): void {
+  if (!(backend instanceof KeyTypeBackend)) {
+    throw new TypeError("The provided Key Type Backend is invalid.");
   }
 
-  if (JSONWEBKEY_BACKEND_REGISTRY.some((entry) => entry === backend || entry.keyType === backend.keyType)) {
-    throw new TypeError("The provided JSON Web Key Backend is already registered.");
+  if (KEY_TYPE_BACKEND_REGISTRY.some((entry) => entry.name === backend.name)) {
+    throw new TypeError("The provided Key Type Backend is already registered.");
   }
 
-  JSONWEBKEY_BACKEND_REGISTRY.push(backend);
+  KEY_TYPE_BACKEND_REGISTRY.push(backend);
 }

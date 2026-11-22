@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InvalidJsonWebKeyError } from "../../errors/invalid-jsonwebkey.error.ts";
 import type { JsonWebKeyParameters } from "../../jwk/jsonwebkey.parameters.ts";
-import { JsonWebKeyBackend } from "./jsonwebkey.backend.ts";
 import type { KeyOperation } from "./key-operation.type.ts";
+import { KeyTypeBackend } from "./key-type.backend.ts";
 import type { PublicKeyUse } from "./public-key-use.type.ts";
 
 const invalidUses: any[] = [
@@ -203,7 +203,9 @@ const invalidUsesAndKeyOps: [PublicKeyUse, KeyOperation[]][] = [
   ["sig", ["wrapKey"]],
 ];
 
-describe("JSON Web Key Backend", () => {
+describe("Key Type Backend", () => {
+  const backend: KeyTypeBackend = Reflect.construct(KeyTypeBackend, ["custom"]);
+
   const parameters: JsonWebKeyParameters = {
     d:
       "NR9cFomvtu-szuO9r6b_cpxEF3AFL1LGRvk_vTdlcunhTMMs83CXm5KHKksThV9C" +
@@ -313,63 +315,61 @@ describe("JSON Web Key Backend", () => {
     vi.useRealTimers();
   });
 
-  describe("constructor", () => {
+  describe("validate()", () => {
     it.each(invalidUses)('should throw when the provided JSON Web Key Parameter "use" is invalid.', (use) => {
       const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "use".');
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, use }])).toThrow(error);
+      expect(() => backend.validate({ ...parameters, use })).toThrow(error);
     });
 
     it.each(invalidKeyOps)('should throw when the provided JSON Web Key Parameter "key_ops" is invalid.', (keyOps) => {
       const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "key_ops".');
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, key_ops: keyOps }])).toThrow(error);
+      expect(() => backend.validate({ ...parameters, key_ops: keyOps })).toThrow(error);
     });
 
     it.each(invalidUsesAndKeyOps)(
       'should throw when there\'s an invalid combination of the JSON Web Key Parameters "use" and "key_ops".',
       (use, keyOps) => {
         const error = new InvalidJsonWebKeyError('Invalid combination of JSON Web Key Parameters "use" and "key_ops".');
-        expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, key_ops: keyOps, use }])).toThrow(error);
+        expect(() => backend.validate({ ...parameters, key_ops: keyOps, use })).toThrow(error);
       },
     );
 
     it.each(invalidAlgs)('should throw when the provided JSON Web Key Parameter "alg" is invalid.', (alg) => {
       const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "alg".');
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, alg }])).toThrow(error);
+      expect(() => backend.validate({ ...parameters, alg })).toThrow(error);
     });
 
     it.each(invalidKids)('should throw when the provided JSON Web Key Parameter "kid" is invalid.', (kid) => {
       const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "kid".');
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, kid }])).toThrow(error);
+      expect(() => backend.validate({ ...parameters, kid })).toThrow(error);
     });
 
     it.each(invalidX5Us)('should throw when the provided JSON Web Key Parameter "x5u" is invalid.', (x5u) => {
       const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "x5u".');
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, x5u }])).toThrow(error);
+      expect(() => backend.validate({ ...parameters, x5u })).toThrow(error);
     });
 
     it.each(invalidX5Cs)('should throw when the provided JSON Web Key Parameter "x5c" is invalid.', (x5c) => {
       const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "x5c".');
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, x5c }])).toThrow(error);
+      expect(() => backend.validate({ ...parameters, x5c })).toThrow(error);
     });
 
     it.each(invalidX5Ts)('should throw when the provided JSON Web Key Parameter "x5t" is invalid.', (x5t) => {
       const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "x5t".');
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, x5t }])).toThrow(error);
+      expect(() => backend.validate({ ...parameters, x5t })).toThrow(error);
     });
 
     it.each(invalidX5TS256s)(
       'should throw when the provided JSON Web Key Parameter "x5t#S256" is invalid.',
       (x5tS256) => {
         const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "x5t#S256".');
-        expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, "x5t#S256": x5tS256 }])).toThrow(error);
+        expect(() => backend.validate({ ...parameters, "x5t#S256": x5tS256 })).toThrow(error);
       },
     );
 
     it('should throw when providing both JSON Web Key Parameters "x5u" and "x5c".', () => {
       const error = new InvalidJsonWebKeyError('Cannot have both "x5u" and "x5c" JSON Web Key Parameters.');
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...parameters, x5u: "https://example.com" }])).toThrow(
-        error,
-      );
+      expect(() => backend.validate({ ...parameters, x5u: "https://example.com" })).toThrow(error);
     });
 
     it('should throw when providing the JSON Web Key Parameter "x5t" without providing one of JSON Web Key Parameters "x5u" or "x5c".', () => {
@@ -379,9 +379,7 @@ describe("JSON Web Key Backend", () => {
         "Cannot have an X.509 Certificate Thumbprint without an X.509 Certificate Chain.",
       );
 
-      expect(() => Reflect.construct(JsonWebKeyBackend, [{ ...params, x5t: "tKL6B4sJGgaVlhGEUwchEOJTA50" }])).toThrow(
-        error,
-      );
+      expect(() => backend.validate({ ...params, x5t: "tKL6B4sJGgaVlhGEUwchEOJTA50" })).toThrow(error);
     });
 
     it('should throw when providing the JSON Web Key Parameter "x5t#S256" without providing one of JSON Web Key Parameters "x5u" or "x5c".', () => {
@@ -391,27 +389,13 @@ describe("JSON Web Key Backend", () => {
         "Cannot have an X.509 Certificate Thumbprint without an X.509 Certificate Chain.",
       );
 
-      expect(() => {
-        Reflect.construct(JsonWebKeyBackend, [
-          { ...params, "x5t#S256": "hRYOcUfJLh-Md6KzaOTdk9lv8Q8lhvZh6ucIqd3GaG0" },
-        ]);
-      }).toThrow(error);
+      expect(() => backend.validate({ ...params, "x5t#S256": "hRYOcUfJLh-Md6KzaOTdk9lv8Q8lhvZh6ucIqd3GaG0" })).toThrow(
+        error,
+      );
     });
 
-    it("should return an instance of a JSON Web Key Backend.", () => {
-      let backend!: JsonWebKeyBackend;
-
-      expect(() => (backend = Reflect.construct(JsonWebKeyBackend, [parameters]))).not.toThrow();
-
-      expect(backend).toBeInstanceOf(JsonWebKeyBackend);
-      expect(backend.parameters).toStrictEqual(parameters);
-    });
-  });
-
-  describe("generate()", () => {
-    it("should throw since it's a proto-abstract static method.", async () => {
-      const error = new Error("Method not implemented.");
-      await expect(JsonWebKeyBackend.generate({})).rejects.toThrow(error);
+    it("should not throw when the provided JSON Web Key Parameters is valid.", () => {
+      expect(() => backend.validate(parameters)).not.toThrow();
     });
   });
 });

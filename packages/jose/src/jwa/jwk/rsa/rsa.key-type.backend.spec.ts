@@ -7,9 +7,9 @@ import type { Mock } from "vitest";
 
 import { InvalidJsonWebKeyError } from "../../../errors/invalid-jsonwebkey.error.ts";
 import { JsonWebKey } from "../../../jwk/jsonwebkey.ts";
-import { JsonWebKeyBackend } from "../jsonwebkey.backend.ts";
-import { RsaJsonWebKeyBackend } from "./rsa.jsonwebkey.backend.ts";
+import { KeyTypeBackend } from "../key-type.backend.ts";
 import type { RsaJsonWebKeyParameters } from "./rsa.jsonwebkey.parameters.ts";
+import { RsaKeyTypeBackend } from "./rsa.key-type.backend.ts";
 
 const invalidGenerateOptions: any[] = [
   undefined,
@@ -113,7 +113,9 @@ const invalidQIs: any[] = [
   "",
 ];
 
-describe("RSA JSON Web Key Backend", () => {
+describe("RSA Key Type Backend", () => {
+  const backend = new RsaKeyTypeBackend();
+
   const publicParameters: RsaJsonWebKeyParameters = {
     e: "AQAB",
     kty: "RSA",
@@ -161,88 +163,10 @@ describe("RSA JSON Web Key Backend", () => {
     vi.restoreAllMocks();
   });
 
-  describe("keyType", () => {
+  describe("name", () => {
     it('should have "RSA" as its value.', () => {
-      expect(RsaJsonWebKeyBackend.keyType).toBe<RsaJsonWebKeyParameters["kty"]>("RSA");
+      expect(backend.name).toBe<RsaJsonWebKeyParameters["kty"]>("RSA");
     });
-  });
-
-  describe("constructor", () => {
-    let superValidateSpy: Mock<(parameters: any) => void>;
-
-    beforeEach(() => {
-      superValidateSpy = vi.spyOn(JsonWebKeyBackend.prototype, "validate");
-    });
-
-    it.each(invalidNs)('should throw when the provided JSON Web Key Parameter "n" is invalid.', (n) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "n".');
-
-      expect(() => new RsaJsonWebKeyBackend({ ...publicParameters, n })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it.each(invalidEs)('should throw when the provided JSON Web Key Parameter "e" is invalid.', (e) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "e".');
-
-      expect(() => new RsaJsonWebKeyBackend({ ...publicParameters, e })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it.each(invalidDs)('should throw when the provided JSON Web Key Parameter "d" is invalid.', (d) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "d".');
-
-      expect(() => new RsaJsonWebKeyBackend({ ...privateParameters, d })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it.each(invalidPs)('should throw when the provided JSON Web Key Parameter "p" is invalid.', (p) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "p".');
-
-      expect(() => new RsaJsonWebKeyBackend({ ...privateParameters, p })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it.each(invalidQs)('should throw when the provided JSON Web Key Parameter "q" is invalid.', (q) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "q".');
-
-      expect(() => new RsaJsonWebKeyBackend({ ...privateParameters, q })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it.each(invalidDPs)('should throw when the provided JSON Web Key Parameter "dp" is invalid.', (dp) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "dp".');
-
-      expect(() => new RsaJsonWebKeyBackend({ ...privateParameters, dp })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it.each(invalidDQs)('should throw when the provided JSON Web Key Parameter "dq" is invalid.', (dq) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "dq".');
-
-      expect(() => new RsaJsonWebKeyBackend({ ...privateParameters, dq })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it.each(invalidQIs)('should throw when the provided JSON Web Key Parameter "qi" is invalid.', (qi) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "qi".');
-
-      expect(() => new RsaJsonWebKeyBackend({ ...privateParameters, qi })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it.each([publicParameters, privateParameters])(
-      "should return an instance of an RSA JSON Web Key Backend.",
-      (parameters) => {
-        let backend!: RsaJsonWebKeyBackend;
-
-        expect(() => (backend = new RsaJsonWebKeyBackend(parameters))).not.toThrow();
-
-        expect(backend).toBeInstanceOf(RsaJsonWebKeyBackend);
-        expect(backend.parameters).toStrictEqual(parameters);
-
-        expect(superValidateSpy).toHaveBeenCalledExactlyOnceWith(parameters);
-      },
-    );
   });
 
   describe("generate()", () => {
@@ -250,7 +174,7 @@ describe("RSA JSON Web Key Backend", () => {
       "should throw when the provided RSA JSON Web Key Generation Options is invalid.",
       async (options) => {
         const error = new TypeError("The provided RSA JSON Web Key Generation Options is invalid.");
-        await expect(RsaJsonWebKeyBackend.generate(options)).rejects.toThrow(error);
+        await expect(backend.generate(options)).rejects.toThrow(error);
       },
     );
 
@@ -258,7 +182,7 @@ describe("RSA JSON Web Key Backend", () => {
       'should throw when the provided RSA JSON Web Key Generation Option "modulus" is invalid.',
       async (modulus) => {
         const error = new TypeError('The provided RSA JSON Web Key Generation Option "modulus" is invalid.');
-        await expect(RsaJsonWebKeyBackend.generate({ modulus })).rejects.toThrow(error);
+        await expect(backend.generate({ modulus })).rejects.toThrow(error);
       },
     );
 
@@ -266,7 +190,7 @@ describe("RSA JSON Web Key Backend", () => {
       'should throw when the provided RSA JSON Web Key Generation Option "publicExponent" is invalid.',
       async (publicExponent) => {
         const error = new TypeError('The provided RSA JSON Web Key Generation Option "publicExponent" is invalid.');
-        await expect(RsaJsonWebKeyBackend.generate({ modulus: 2048, publicExponent })).rejects.toThrow(error);
+        await expect(backend.generate({ modulus: 2048, publicExponent })).rejects.toThrow(error);
       },
     );
 
@@ -275,7 +199,7 @@ describe("RSA JSON Web Key Backend", () => {
 
       await expect(
         (async () => {
-          jsonWebKey = await RsaJsonWebKeyBackend.generate({ modulus: 2048 });
+          jsonWebKey = await backend.generate({ modulus: 2048 });
         })(),
       ).resolves.not.toThrow();
 
@@ -298,10 +222,7 @@ describe("RSA JSON Web Key Backend", () => {
 
       await expect(
         (async () => {
-          jsonWebKey = await RsaJsonWebKeyBackend.generate(
-            { modulus: 2048 },
-            { alg: "RS256", kid: "5j6S2T2zAp5YLxHO", kty: "EC" },
-          );
+          jsonWebKey = await backend.generate({ modulus: 2048 }, { alg: "RS256", kid: "5j6S2T2zAp5YLxHO", kty: "EC" });
         })(),
       ).resolves.not.toThrow();
 
@@ -325,9 +246,8 @@ describe("RSA JSON Web Key Backend", () => {
   describe("getCryptoKey()", () => {
     it("should return a Public Native Crypto Key.", () => {
       let cryptoKey!: KeyObject;
-      const backend = new RsaJsonWebKeyBackend(publicParameters);
 
-      expect(() => (cryptoKey = backend.getCryptoKey())).not.toThrow();
+      expect(() => (cryptoKey = backend.getCryptoKey(publicParameters))).not.toThrow();
 
       expect(cryptoKey).toBeInstanceOf(KeyObject);
       expect(cryptoKey.type).toBe<KeyObjectType>("public");
@@ -336,9 +256,8 @@ describe("RSA JSON Web Key Backend", () => {
 
     it("should return a Private Native Crypto Key.", () => {
       let cryptoKey!: KeyObject;
-      const backend = new RsaJsonWebKeyBackend(privateParameters);
 
-      expect(() => (cryptoKey = backend.getCryptoKey())).not.toThrow();
+      expect(() => (cryptoKey = backend.getCryptoKey(privateParameters))).not.toThrow();
 
       expect(cryptoKey).toBeInstanceOf(KeyObject);
       expect(cryptoKey.type).toBe<KeyObjectType>("private");
@@ -346,38 +265,81 @@ describe("RSA JSON Web Key Backend", () => {
     });
   });
 
-  describe("toJSON()", () => {
-    const publicJsonWebKeyBackend = new RsaJsonWebKeyBackend(publicParameters);
-    const privateJsonWebKeyBackend = new RsaJsonWebKeyBackend(privateParameters);
+  describe("getPrivateParameters()", () => {
+    it('should return ["d", "p", "q", "dp", "dq", "qi"].', () => {
+      expect(backend.getPrivateParameters()).toStrictEqual(["d", "p", "q", "dp", "dq", "qi"]);
+    });
+  });
 
-    it("should return the Public JSON Web Key Parameters of the Public Key when exportPrivate is undefined.", () => {
-      expect(publicJsonWebKeyBackend.toJSON()).toStrictEqual(publicParameters);
-      expect(publicJsonWebKeyBackend.parameters).toStrictEqual(publicParameters);
+  describe("validate()", () => {
+    let superValidateSpy: Mock<(parameters: any) => void>;
+
+    beforeEach(() => {
+      superValidateSpy = vi.spyOn(KeyTypeBackend.prototype, "validate");
     });
 
-    it("should return the Public JSON Web Key Parameters of the Public Key when exportPrivate is false.", () => {
-      expect(publicJsonWebKeyBackend.toJSON(false)).toStrictEqual(publicParameters);
-      expect(publicJsonWebKeyBackend.parameters).toStrictEqual(publicParameters);
+    it.each(invalidNs)('should throw when the provided JSON Web Key Parameter "n" is invalid.', (n) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "n".');
+
+      expect(() => backend.validate({ ...publicParameters, n })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
     });
 
-    it("should return the Public JSON Web Key Parameters of the Public Key when exportPrivate is true.", () => {
-      expect(publicJsonWebKeyBackend.toJSON(true)).toStrictEqual(publicParameters);
-      expect(publicJsonWebKeyBackend.parameters).toStrictEqual(publicParameters);
+    it.each(invalidEs)('should throw when the provided JSON Web Key Parameter "e" is invalid.', (e) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "e".');
+
+      expect(() => backend.validate({ ...publicParameters, e })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
     });
 
-    it("should return the Public JSON Web Key Parameters of the Private Key when exportPrivate is undefined.", () => {
-      expect(privateJsonWebKeyBackend.toJSON()).toStrictEqual(publicParameters);
-      expect(privateJsonWebKeyBackend.parameters).toStrictEqual(privateParameters);
+    it.each(invalidDs)('should throw when the provided JSON Web Key Parameter "d" is invalid.', (d) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "d".');
+
+      expect(() => backend.validate({ ...privateParameters, d })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
     });
 
-    it("should return the Public JSON Web Key Parameters of the Private Key when exportPrivate is false.", () => {
-      expect(privateJsonWebKeyBackend.toJSON(false)).toStrictEqual(publicParameters);
-      expect(privateJsonWebKeyBackend.parameters).toStrictEqual(privateParameters);
+    it.each(invalidPs)('should throw when the provided JSON Web Key Parameter "p" is invalid.', (p) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "p".');
+
+      expect(() => backend.validate({ ...privateParameters, p })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
     });
 
-    it("should return the Private JSON Web Key Parameters of the Private Key when exportPrivate is true.", () => {
-      expect(privateJsonWebKeyBackend.toJSON(true)).toStrictEqual(privateParameters);
-      expect(privateJsonWebKeyBackend.parameters).toStrictEqual(privateParameters);
+    it.each(invalidQs)('should throw when the provided JSON Web Key Parameter "q" is invalid.', (q) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "q".');
+
+      expect(() => backend.validate({ ...privateParameters, q })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
     });
+
+    it.each(invalidDPs)('should throw when the provided JSON Web Key Parameter "dp" is invalid.', (dp) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "dp".');
+
+      expect(() => backend.validate({ ...privateParameters, dp })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
+    });
+
+    it.each(invalidDQs)('should throw when the provided JSON Web Key Parameter "dq" is invalid.', (dq) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "dq".');
+
+      expect(() => backend.validate({ ...privateParameters, dq })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
+    });
+
+    it.each(invalidQIs)('should throw when the provided JSON Web Key Parameter "qi" is invalid.', (qi) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "qi".');
+
+      expect(() => backend.validate({ ...privateParameters, qi })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
+    });
+
+    it.each([publicParameters, privateParameters])(
+      "should not throw when the provided JSON Web Key Parameters is valid.",
+      (parameters) => {
+        expect(() => backend.validate(parameters)).not.toThrow();
+        expect(superValidateSpy).toHaveBeenCalledExactlyOnceWith(parameters);
+      },
+    );
   });
 });

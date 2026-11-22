@@ -7,9 +7,9 @@ import type { Mock } from "vitest";
 
 import { InvalidJsonWebKeyError } from "../../../errors/invalid-jsonwebkey.error.ts";
 import { JsonWebKey } from "../../../jwk/jsonwebkey.ts";
-import { JsonWebKeyBackend } from "../jsonwebkey.backend.ts";
-import { OctetSequenceJsonWebKeyBackend } from "./octet-sequence.jsonwebkey.backend.ts";
+import { KeyTypeBackend } from "../key-type.backend.ts";
 import type { OctetSequenceJsonWebKeyParameters } from "./octet-sequence.jsonwebkey.parameters.ts";
+import { OctetSequenceKeyTypeBackend } from "./octet-sequence.key-type.backend.ts";
 
 const invalidGenerateOptions: any[] = [
   undefined,
@@ -59,7 +59,9 @@ const invalidKs: any[] = [
   "=",
 ];
 
-describe("Octet Sequence JSON Web Key Backend", () => {
+describe("Octet Sequence Key Type Backend", () => {
+  const backend = new OctetSequenceKeyTypeBackend();
+
   const parameters: OctetSequenceJsonWebKeyParameters = {
     k: "qDM80igvja4Tg_tNsEuWDhl2bMM6_NgJEldFhIEuwqQ",
     kty: "oct",
@@ -69,35 +71,9 @@ describe("Octet Sequence JSON Web Key Backend", () => {
     vi.restoreAllMocks();
   });
 
-  describe("keyType", () => {
+  describe("name", () => {
     it('should have "oct" as its value.', () => {
-      expect(OctetSequenceJsonWebKeyBackend.keyType).toBe<OctetSequenceJsonWebKeyParameters["kty"]>("oct");
-    });
-  });
-
-  describe("constructor", () => {
-    let superValidateSpy: Mock<(parameters: any) => void>;
-
-    beforeEach(() => {
-      superValidateSpy = vi.spyOn(JsonWebKeyBackend.prototype, "validate");
-    });
-
-    it.each(invalidKs)('should throw when the provided JSON Web Key Parameter "k" is invalid.', (k) => {
-      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "k".');
-
-      expect(() => new OctetSequenceJsonWebKeyBackend({ ...parameters, k })).toThrow(error);
-      expect(superValidateSpy).not.toHaveBeenCalled();
-    });
-
-    it("should return an instance of an Octet Sequence JSON Web Key Backend.", () => {
-      let backend!: OctetSequenceJsonWebKeyBackend;
-
-      expect(() => (backend = new OctetSequenceJsonWebKeyBackend(parameters))).not.toThrow();
-
-      expect(backend).toBeInstanceOf(OctetSequenceJsonWebKeyBackend);
-      expect(backend.parameters).toStrictEqual(parameters);
-
-      expect(superValidateSpy).toHaveBeenCalledExactlyOnceWith(parameters);
+      expect(backend.name).toBe<OctetSequenceJsonWebKeyParameters["kty"]>("oct");
     });
   });
 
@@ -106,7 +82,7 @@ describe("Octet Sequence JSON Web Key Backend", () => {
       "should throw when the provided Octet Sequence JSON Web Key Generation Options is invalid.",
       async (options) => {
         const error = new TypeError("The provided Octet Sequence JSON Web Key Generation Options is invalid.");
-        await expect(OctetSequenceJsonWebKeyBackend.generate(options)).rejects.toThrow(error);
+        await expect(backend.generate(options)).rejects.toThrow(error);
       },
     );
 
@@ -114,7 +90,7 @@ describe("Octet Sequence JSON Web Key Backend", () => {
       'should throw when the provided Octet Sequence JSON Web Key Generation Option "length" is invalid.',
       async (length) => {
         const error = new TypeError('The provided Octet Sequence JSON Web Key Generation Option "length" is invalid.');
-        await expect(OctetSequenceJsonWebKeyBackend.generate({ length })).rejects.toThrow(error);
+        await expect(backend.generate({ length })).rejects.toThrow(error);
       },
     );
 
@@ -123,7 +99,7 @@ describe("Octet Sequence JSON Web Key Backend", () => {
 
       await expect(
         (async () => {
-          jsonWebKey = await OctetSequenceJsonWebKeyBackend.generate({ length: 256 });
+          jsonWebKey = await backend.generate({ length: 256 });
         })(),
       ).resolves.not.toThrow();
 
@@ -139,10 +115,7 @@ describe("Octet Sequence JSON Web Key Backend", () => {
 
       await expect(
         (async () => {
-          jsonWebKey = await OctetSequenceJsonWebKeyBackend.generate(
-            { length: 256 },
-            { alg: "HS256", kid: "r7DSGf2hS0g8o4Zn", kty: "RSA" },
-          );
+          jsonWebKey = await backend.generate({ length: 256 }, { alg: "HS256", kid: "r7DSGf2hS0g8o4Zn", kty: "RSA" });
         })(),
       ).resolves.not.toThrow();
 
@@ -159,9 +132,8 @@ describe("Octet Sequence JSON Web Key Backend", () => {
   describe("getCryptoKey()", () => {
     it("should return a Secret Native Crypto Key.", () => {
       let cryptoKey!: KeyObject;
-      const backend = new OctetSequenceJsonWebKeyBackend(parameters);
 
-      expect(() => (cryptoKey = backend.getCryptoKey())).not.toThrow();
+      expect(() => (cryptoKey = backend.getCryptoKey(parameters))).not.toThrow();
 
       expect(cryptoKey).toBeInstanceOf(KeyObject);
       expect(cryptoKey.type).toBe<KeyObjectType>("secret");
@@ -169,22 +141,29 @@ describe("Octet Sequence JSON Web Key Backend", () => {
     });
   });
 
-  describe("toJSON()", () => {
-    const jsonWebKeyBackend = new OctetSequenceJsonWebKeyBackend(parameters);
+  describe("getPrivateParameters()", () => {
+    it("should return [].", () => {
+      expect(backend.getPrivateParameters()).toStrictEqual<string[]>([]);
+    });
+  });
 
-    it("should return the JSON Web Key Parameters of the Key when exportPrivate is undefined.", () => {
-      expect(jsonWebKeyBackend.toJSON()).toStrictEqual(parameters);
-      expect(jsonWebKeyBackend.parameters).toStrictEqual(parameters);
+  describe("validate()", () => {
+    let superValidateSpy: Mock<(parameters: any) => void>;
+
+    beforeEach(() => {
+      superValidateSpy = vi.spyOn(KeyTypeBackend.prototype, "validate");
     });
 
-    it("should return the JSON Web Key Parameters of the Key when exportPrivate is false.", () => {
-      expect(jsonWebKeyBackend.toJSON(false)).toStrictEqual(parameters);
-      expect(jsonWebKeyBackend.parameters).toStrictEqual(parameters);
+    it.each(invalidKs)('should throw when the provided JSON Web Key Parameter "k" is invalid.', (k) => {
+      const error = new InvalidJsonWebKeyError('Invalid JSON Web Key Parameter "k".');
+
+      expect(() => backend.validate({ ...parameters, k })).toThrow(error);
+      expect(superValidateSpy).not.toHaveBeenCalled();
     });
 
-    it("should return the JSON Web Key Parameters of the Key when exportPrivate is true.", () => {
-      expect(jsonWebKeyBackend.toJSON(true)).toStrictEqual(parameters);
-      expect(jsonWebKeyBackend.parameters).toStrictEqual(parameters);
+    it("should not throw when the provided JSON Web Key Parameters is valid.", () => {
+      expect(() => backend.validate(parameters)).not.toThrow();
+      expect(superValidateSpy).toHaveBeenCalledExactlyOnceWith(parameters);
     });
   });
 });

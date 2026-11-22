@@ -1,9 +1,9 @@
-import { Functions } from "@avarin/primitives/functions";
 import { Strings } from "@avarin/primitives/strings";
 
 import type { EllipticCurveJsonWebKeyParameters } from "../../jwa/jwk/ec/elliptic-curve.jsonwebkey.parameters.ts";
 import type { GenerateEllipticCurveJsonWebKeyOptions } from "../../jwa/jwk/ec/generate-elliptic-curve-jsonwebkey.options.ts";
-import { JSONWEBKEY_BACKEND_REGISTRY } from "../../jwa/jwk/jsonwebkey.backend.registry.ts";
+import { KEY_TYPE_BACKEND_REGISTRY } from "../../jwa/jwk/key-type.backend.registry.ts";
+import { KeyTypeBackend } from "../../jwa/jwk/key-type.backend.ts";
 import type { KeyType } from "../../jwa/jwk/key-type.type.ts";
 import type { GenerateOctetSequenceJsonWebKeyOptions } from "../../jwa/jwk/oct/generate-octet-sequence-jsonwebkey.options.ts";
 import type { OctetSequenceJsonWebKeyParameters } from "../../jwa/jwk/oct/octet-sequence.jsonwebkey.parameters.ts";
@@ -95,11 +95,11 @@ export async function generate(
     throw new TypeError("The provided JSON Web Key Key Type is invalid.");
   }
 
-  const Constructor = JSONWEBKEY_BACKEND_REGISTRY.find((backend) => backend.keyType === keyType);
+  const keyTypeBackend = KEY_TYPE_BACKEND_REGISTRY.find((backend) => backend.name === keyType);
 
-  if (!Functions.isClass(Constructor)) {
+  if (!(keyTypeBackend instanceof KeyTypeBackend)) {
     throw new TypeError("The provided JSON Web Key Key Type is invalid.");
   }
 
-  return await Constructor.generate(options, parameters);
+  return await keyTypeBackend.generate(options, parameters);
 }

@@ -1,10 +1,8 @@
 import { Buffer } from "node:buffer";
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Mock } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { InvalidJsonWebKeyError } from "../errors/invalid-jsonwebkey.error.ts";
-import { RsaJsonWebKeyBackend } from "../jwa/jwk/rsa/rsa.jsonwebkey.backend.ts";
 import type { JsonWebKeyParameters } from "./jsonwebkey.parameters.ts";
 import { JsonWebKey } from "./jsonwebkey.ts";
 
@@ -161,17 +159,7 @@ describe("JSON Web Key", () => {
   });
 
   describe("toJSON()", () => {
-    let jsonWebKey: JsonWebKey;
-    let jsonWebKeyBackendToJSONSpy: Mock<(exportPrivate?: boolean) => JsonWebKeyParameters>;
-
-    beforeEach(() => {
-      jsonWebKeyBackendToJSONSpy = vi.spyOn(RsaJsonWebKeyBackend.prototype, "toJSON");
-      jsonWebKey = new JsonWebKey(parameters);
-    });
-
-    afterEach(() => {
-      vi.restoreAllMocks();
-    });
+    const jsonWebKey = new JsonWebKey(parameters);
 
     it("should return the Public Parameters of the JSON Web Key when not passing exportPrivate.", () => {
       expect(jsonWebKey.toJSON()).toStrictEqual<JsonWebKeyParameters>({
@@ -180,8 +168,6 @@ describe("JSON Web Key", () => {
         n: parameters["n"]!,
         x5c: parameters.x5c!,
       });
-
-      expect(jsonWebKeyBackendToJSONSpy).toHaveBeenCalledExactlyOnceWith(false);
     });
 
     it("should return the Public Parameters of the JSON Web Key when passing exportPrivate as false.", () => {
@@ -191,13 +177,10 @@ describe("JSON Web Key", () => {
         n: parameters["n"]!,
         x5c: parameters.x5c!,
       });
-
-      expect(jsonWebKeyBackendToJSONSpy).toHaveBeenCalledExactlyOnceWith(false);
     });
 
     it("should return the Private Parameters of the JSON Web Key when passing exportPrivate as true.", () => {
       expect(jsonWebKey.toJSON(true)).toStrictEqual(parameters);
-      expect(jsonWebKeyBackendToJSONSpy).toHaveBeenCalledExactlyOnceWith(true);
     });
   });
 });
