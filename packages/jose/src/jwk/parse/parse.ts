@@ -1,7 +1,6 @@
 import { JSON } from "@avarin/primitives/json";
 
 import { InvalidJsonWebKeyError } from "../../errors/invalid-jsonwebkey.error.ts";
-import { JoseError } from "../../errors/jose.error.ts";
 import { create } from "../create/create.ts";
 import type { JsonWebKeyParameters } from "../jsonwebkey.parameters.ts";
 import type { JsonWebKey } from "../jsonwebkey.ts";
@@ -21,8 +20,6 @@ export async function parse<T extends JsonWebKeyParameters = JsonWebKeyParameter
   try {
     return await create(JSON.parse<T>(data), additionalParameters);
   } catch (error: unknown) {
-    throw error instanceof JoseError
-      ? error
-      : new InvalidJsonWebKeyError("The provided JSON Web Key Parameters is invalid.", { cause: error });
+    throw new InvalidJsonWebKeyError("The provided JSON Web Key Parameters is invalid.", { cause: error });
   }
 }

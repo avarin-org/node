@@ -1,5 +1,5 @@
 /**
- * RSA JSON Web Key generation options.
+ * RSA JSON Web Key Generation Options.
  */
 export interface GenerateRsaJsonWebKeyOptions extends NodeJS.Dict<unknown> {
   /**

@@ -6,7 +6,7 @@ The following RFCs are implemented by this package:
 
 - [ ] [RFC 7515 JSON Web Signature (JWS)](https://www.rfc-editor.org/info/rfc7515/)
 - [ ] [RFC 7516 JSON Web Encryption (JWE)](https://www.rfc-editor.org/info/rfc7516/)
-- [ ] [RFC 7517 JSON Web Key (JWK)](https://www.rfc-editor.org/info/rfc7517/)
+- [x] [RFC 7517 JSON Web Key (JWK)](https://www.rfc-editor.org/info/rfc7517/)
 - [ ] [RFC 7518 JSON Web Algorithms (JWA)](https://www.rfc-editor.org/info/rfc7518/)
 - [ ] [RFC 7519 JSON Web Token (JWT)](https://www.rfc-editor.org/info/rfc7519/)
 - [ ] [RFC 7638 JSON Web Key (JWK) Thumbprint](https://www.rfc-editor.org/info/rfc7638/)

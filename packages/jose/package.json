@@ -58,6 +58,12 @@
       "types": "./dist/jwk/index.d.ts",
       "import": "./dist/jwk/index.js",
       "default": "./dist/jwk/index.js"
+    },
+    "./jwks": {
+      "@avarin/source": "./src/jwks/index.ts",
+      "types": "./dist/jwks/index.d.ts",
+      "import": "./dist/jwks/index.js",
+      "default": "./dist/jwks/index.js"
     }
   },
   "dependencies": {
