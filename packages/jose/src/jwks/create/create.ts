@@ -13,14 +13,13 @@ import { JsonWebKeySet } from "../jsonwebkeyset.ts";
  * @param keys JSON Web Keys.
  * @returns Provided JSON Web Keys after validation.
  * @throws {InvalidJsonWebKeySetError} The provided JSON Web Keys contain duplicate entries.
- * @throws {TypeError} The provided JSON Web Keys is invalid.
  */
 function validateJsonWebKeys(keys: JsonWebKey[]): JsonWebKey[] {
   if (
     keys.length === 0 ||
     keys.some((key) => !(key instanceof JsonWebKey) || !Strings.isNonEmpty(key.parameters.kid))
   ) {
-    throw new TypeError("The provided JSON Web Keys is invalid.");
+    throw new InvalidJsonWebKeySetError("The provided JSON Web Keys is invalid.");
   }
 
   const identifiers = keys.map((key) => key.parameters.kid!);
@@ -37,12 +36,11 @@ function validateJsonWebKeys(keys: JsonWebKey[]): JsonWebKey[] {
  *
  * @param parameters JSON Web Key Set Parameters.
  * @returns JSON Web Keys from the provided JSON Web Key Set Parameters.
- * @throws {InvalidJsonWebKeySetError} The provided JSON Web Key Set Parameters are invalid.
- * @throws {TypeError} The provided JSON Web Key Set Parameters is invalid.
+ * @throws {InvalidJsonWebKeySetError} The provided JSON Web Key Set Parameters is invalid.
  */
 async function validateJsonWebKeySetParameters(parameters: JsonWebKeySetParameters): Promise<JsonWebKey[]> {
   if (!Objects.isPlain(parameters)) {
-    throw new TypeError("The provided JSON Web Key Set Parameters is invalid.");
+    throw new InvalidJsonWebKeySetError("The provided JSON Web Key Set Parameters is invalid.");
   }
 
   if (!Array.isArray(parameters.keys) || parameters.keys.length === 0) {
@@ -62,8 +60,7 @@ async function validateJsonWebKeySetParameters(parameters: JsonWebKeySetParamete
  *
  * @param parameters JSON Web Key Set Parameters.
  * @returns JSON Web Key Set.
- * @throws {InvalidJsonWebKeySetError} The provided JSON Web Key Set Parameters are invalid.
- * @throws {TypeError} The provided JSON Web Key Set Parameters is invalid.
+ * @throws {InvalidJsonWebKeySetError} The provided JSON Web Key Set Parameters is invalid.
  */
 export async function create(parameters: JsonWebKeySetParameters): Promise<JsonWebKeySet>;
 
@@ -73,7 +70,6 @@ export async function create(parameters: JsonWebKeySetParameters): Promise<JsonW
  * @param keys JSON Web Keys.
  * @returns JSON Web Key Set.
  * @throws {InvalidJsonWebKeySetError} The provided JSON Web Keys contain duplicate entries.
- * @throws {TypeError} The provided JSON Web Keys is invalid.
  */
 export async function create(keys: JsonWebKey[]): Promise<JsonWebKeySet>;
 
@@ -82,9 +78,8 @@ export async function create(keys: JsonWebKey[]): Promise<JsonWebKeySet>;
  *
  * @param parametersOrKeys JSON Web Key Set Parameters or JSON Web Keys.
  * @returns JSON Web Key Set.
- * @throws {InvalidJsonWebKeySetError} The provided JSON Web Key Set Parameters are invalid or the provided JSON Web
- * @throws {TypeError} The provided JSON Web Key Set Parameters or JSON Web Keys is invalid. Keys contain duplicate
- *   entries.
+ * @throws {InvalidJsonWebKeySetError} The provided JSON Web Key Set Parameters is invalid or the provided JSON Web Keys
+ *   contain duplicate entries.
  */
 export async function create(parametersOrKeys: JsonWebKeySetParameters | JsonWebKey[]): Promise<JsonWebKeySet> {
   const keys = Array.isArray(parametersOrKeys)

@@ -1,4 +1,5 @@
 import { Buffer } from "node:buffer";
+import { KeyObject } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
@@ -135,6 +136,7 @@ describe("JSON Web Key", () => {
       expect(() => (jsonWebKey = new JsonWebKey(parameters))).not.toThrow();
 
       expect(jsonWebKey.parameters).toStrictEqual(parameters);
+      expect(jsonWebKey.cryptoKey).toBeInstanceOf(KeyObject);
     });
 
     it("should set the X.509 Certificate Chain of the JSON Web Key in the first access.", () => {

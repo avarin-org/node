@@ -35,7 +35,7 @@ export async function getX509CertificateChain(
       (pemCertificate) => new X509Certificate(Buffer.from(pemCertificate, "base64")),
     );
   } catch (error: unknown) {
-    throw new InvalidJsonWebKeyError("One or more X.509 Certificates are invalid.", { cause: error });
+    throw new InvalidJsonWebKeyError("One or more X.509 Certificates is invalid.", { cause: error });
   }
 
   // TODO: Check keyUsage and signatureAlgorithm

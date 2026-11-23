@@ -22,4 +22,9 @@ export type { RsaJsonWebKeyParameters } from "./jwk/rsa/rsa.jsonwebkey.parameter
 
 // #region JSON Web Signature
 export type { DigitalSignatureAlgorithm } from "./jws/digital-signature-algorithm.type.ts";
+export { DigitalSignatureBackend } from "./jws/digital-signature.backend.ts";
+export { ECDSADigitalSignatureBackend } from "./jws/ecdsa/ecdsa.digital-signature.backend.ts";
+export { HMACDigitalSignatureBackend } from "./jws/hmac/hmac.digital-signature.backend.ts";
+export { NoneDigitalSignatureBackend } from "./jws/none/none.digital-signature.backend.ts";
+export { RSASSADigitalSignatureBackend } from "./jws/rsassa/rsassa.digital-signature.backend.ts";
 // #endregion

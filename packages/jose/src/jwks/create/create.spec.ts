@@ -112,7 +112,7 @@ const duplicateKeyIdentifiers: JsonWebKey[] = [
 describe("create()", () => {
   describe("constructor", () => {
     it.each(invalidKeys)("should throw when the provided JSON Web Keys is invalid.", async (keys) => {
-      const error = new TypeError("The provided JSON Web Keys is invalid.");
+      const error = new InvalidJsonWebKeySetError("The provided JSON Web Keys is invalid.");
       await expect(create(keys)).rejects.toThrow(error);
     });
 
@@ -124,7 +124,7 @@ describe("create()", () => {
     it.each(invalidParameters)(
       "should throw when the provided JSON Web Key Set Parameters is invalid.",
       async (parameters) => {
-        const error = new TypeError("The provided JSON Web Key Set Parameters is invalid.");
+        const error = new InvalidJsonWebKeySetError("The provided JSON Web Key Set Parameters is invalid.");
         await expect(create(parameters)).rejects.toThrow(error);
       },
     );

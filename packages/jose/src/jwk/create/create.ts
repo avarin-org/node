@@ -12,7 +12,7 @@ import { JsonWebKey } from "../jsonwebkey.ts";
  * @param parameters JSON Web Key Parameters.
  * @param additionalParameters Optional additional JSON Web Key Parameters.
  * @returns JSON Web Key.
- * @throws {InvalidJsonWebKeyError} The provided JSON Web Key Parameters are invalid.
+ * @throws {InvalidJsonWebKeyError} The provided JSON Web Key Parameters is invalid.
  */
 export async function create<T extends JsonWebKeyParameters = JsonWebKeyParameters>(
   parameters: T,

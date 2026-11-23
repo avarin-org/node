@@ -78,14 +78,14 @@ describe("getX509PemCertificateChainFromUrl()", () => {
     fetchMock.mockResolvedValueOnce({ ok: false } as Response);
 
     const error = new InvalidJsonWebKeyError("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
-    await expect(getX509PemCertificateChainFromUrl("ss://certificate.example.com")).rejects.toThrow(error);
+    await expect(getX509PemCertificateChainFromUrl("https://certificate.example.com")).rejects.toThrow(error);
   });
 
   it("should throw when the URL returns an invalid X.509 PEM Certificate Chain.", async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, status: 200, text: async () => "aabbccddeeff" } as Response);
 
     const error = new InvalidJsonWebKeyError("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
-    await expect(getX509PemCertificateChainFromUrl("ss://certificate.example.com")).rejects.toThrow(error);
+    await expect(getX509PemCertificateChainFromUrl("https://certificate.example.com")).rejects.toThrow(error);
   });
 
   it("should throw when the URL returns an empty X.509 PEM Certificate Chain.", async () => {

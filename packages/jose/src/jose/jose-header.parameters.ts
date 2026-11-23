@@ -1,5 +1,6 @@
 import type { JSON } from "@avarin/primitives/json";
 
+import type { JoseAlgorithm } from "../jwa/index.ts";
 import type { JsonWebKeyParameters } from "../jwk/jsonwebkey.parameters.ts";
 
 /**
@@ -9,6 +10,16 @@ import type { JsonWebKeyParameters } from "../jwk/jsonwebkey.parameters.ts";
  * @see {@link https://www.rfc-editor.org/rfc/rfc7516.html#section-4.1|RFC 7516 Registered Header Parameter Names}
  */
 export interface JoseHeaderParameters extends NodeJS.Dict<JSON> {
+  /**
+   * JOSE Algorithm.
+   *
+   * Cryptographic algorithm used to secure the JWS or to encrypt or determine the value of the CEK.
+   *
+   * @see {@link https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.1|RFC 7515 "alg" (Algorithm) Header Parameter}
+   * @see {@link https://www.rfc-editor.org/rfc/rfc7516.html#section-4.1.1|RFC 7516 "alg" (Algorithm) Header Parameter}
+   */
+  readonly alg: JoseAlgorithm;
+
   /**
    * JWK Set URL.
    *

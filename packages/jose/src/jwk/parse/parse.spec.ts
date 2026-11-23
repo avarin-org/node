@@ -225,11 +225,11 @@ describe("parse()", () => {
 
     await expect(
       (async () => {
-        jsonWebKey = await parse(JSON.stringify(parameters));
+        jsonWebKey = await parse(JSON.stringify(parameters), { alg: "RS256" });
       })(),
     ).resolves.not.toThrow();
 
-    expect(jsonWebKey.parameters).toStrictEqual(parameters);
+    expect(jsonWebKey.parameters).toStrictEqual<JsonWebKeyParameters>({ ...parameters, alg: "RS256" });
 
     expect(jsonWebKey.certificateChain).toHaveLength(3);
     expect(jsonWebKey.certificateChain).toSatisfy((value: unknown[]) =>

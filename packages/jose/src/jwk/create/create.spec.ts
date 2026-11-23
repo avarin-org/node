@@ -221,11 +221,11 @@ describe("create()", () => {
 
     await expect(
       (async () => {
-        jsonWebKey = await create(parameters);
+        jsonWebKey = await create(parameters, { alg: "RS256" });
       })(),
     ).resolves.not.toThrow();
 
-    expect(jsonWebKey.parameters).toStrictEqual(parameters);
+    expect(jsonWebKey.parameters).toStrictEqual<JsonWebKeyParameters>({ ...parameters, alg: "RS256" });
 
     expect(jsonWebKey.certificateChain).toHaveLength(3);
     expect(jsonWebKey.certificateChain).toSatisfy((value: unknown[]) =>

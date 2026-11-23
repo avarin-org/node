@@ -13,7 +13,6 @@ import { KeyTypeBackend } from "../key-type.backend.ts";
 import type { GenerateOctetSequenceJsonWebKeyOptions } from "./generate-octet-sequence-jsonwebkey.options.ts";
 import type { OctetSequenceJsonWebKeyParameters } from "./octet-sequence.jsonwebkey.parameters.ts";
 
-// oxlint-disable-next-line typescript/strict-void-return
 const randomBytesAsync = promisify(randomBytes);
 
 /**

@@ -1,4 +1,4 @@
-import type { X509Certificate } from "node:crypto";
+import type { KeyObject, X509Certificate } from "node:crypto";
 
 import { Objects } from "@avarin/primitives/objects";
 import { Strings } from "@avarin/primitives/strings";
@@ -23,6 +23,11 @@ export class JsonWebKey<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
    * JSON Web Key X.509 Certificate Chain.
    */
   #certificateChain!: X509Certificate[] | null;
+
+  /**
+   * Native Crypto Key.
+   */
+  readonly #cryptoKey: KeyObject;
 
   /**
    * JSON Web Key Parameters.
@@ -52,6 +57,13 @@ export class JsonWebKey<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
   }
 
   /**
+   * Native Crypto Key.
+   */
+  public get cryptoKey(): KeyObject {
+    return this.#cryptoKey;
+  }
+
+  /**
    * JSON Web Key Parameters.
    */
   public get parameters(): T {
@@ -66,6 +78,7 @@ export class JsonWebKey<T extends JsonWebKeyParameters = JsonWebKeyParameters> {
    */
   public constructor(parameters: T) {
     this.#backend = this.getKeyTypeBackend(parameters);
+    this.#cryptoKey = this.#backend.getCryptoKey(parameters);
     this.#parameters = Objects.removeNullishValues(globalThis.structuredClone(parameters));
   }
 

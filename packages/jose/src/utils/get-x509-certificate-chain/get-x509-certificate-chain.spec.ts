@@ -84,7 +84,7 @@ describe("getX509CertificateChain()", () => {
   });
 
   it("should throw when providing an invalid X.509 Certificate.", async () => {
-    const error = new InvalidJsonWebKeyError("One or more X.509 Certificates are invalid.");
+    const error = new InvalidJsonWebKeyError("One or more X.509 Certificates is invalid.");
     await expect(getX509CertificateChain({ x5c: ["0123456789abcdef"] })).rejects.toThrow(error);
   });
 

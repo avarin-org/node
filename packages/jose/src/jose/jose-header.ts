@@ -79,7 +79,7 @@ export abstract class JoseHeader<T extends JoseHeaderParameters = JoseHeaderPara
    * Instantiates a new JOSE Header.
    *
    * @param parameters JOSE Header Parameters.
-   * @throws {InvalidJoseHeaderError} The provided JOSE Header Parameters are invalid.
+   * @throws {InvalidJoseHeaderError} The provided JOSE Header Parameters is invalid.
    */
   public constructor(parameters: T) {
     this.validate(parameters);
