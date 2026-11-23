@@ -11,7 +11,7 @@ import type { JsonWebKeyParameters } from "../jsonwebkey.parameters.ts";
 import type { JsonWebKey } from "../jsonwebkey.ts";
 import { register } from "./register.ts";
 
-class CustomJsonWebKeyBackend extends KeyTypeBackend {
+class CustomKeyTypeBackend extends KeyTypeBackend {
   public override readonly name: KeyType = "custom";
   public async generate(
     _options: NodeJS.Dict<unknown>,
@@ -27,7 +27,7 @@ class CustomJsonWebKeyBackend extends KeyTypeBackend {
   }
 }
 
-class Custom2JsonWebKeyBackend extends KeyTypeBackend {
+class Custom2KeyTypeBackend extends KeyTypeBackend {
   public override readonly name: KeyType = "custom";
   public async generate(
     _options: NodeJS.Dict<unknown>,
@@ -43,7 +43,7 @@ class Custom2JsonWebKeyBackend extends KeyTypeBackend {
   }
 }
 
-const invalidJsonWebKeyBackends: any[] = [
+const invalidKeyTypeBackends: any[] = [
   undefined,
   null,
   true,
@@ -60,7 +60,7 @@ const invalidJsonWebKeyBackends: any[] = [
 ];
 
 describe("register()", () => {
-  it.each(invalidJsonWebKeyBackends)("should throw when the provided class is not a Key Type Backend.", (backend) => {
+  it.each(invalidKeyTypeBackends)("should throw when the provided class is not a Key Type Backend.", (backend) => {
     const error = new TypeError("The provided Key Type Backend is invalid.");
     expect(() => register(backend)).toThrow(error);
   });
@@ -71,12 +71,12 @@ describe("register()", () => {
   });
 
   it("should register the provided Key Type Backend into the Registry.", () => {
-    expect(() => register(new CustomJsonWebKeyBackend())).not.toThrow();
-    expect(KEY_TYPE_BACKEND_REGISTRY).toContainEqual(expect.any(CustomJsonWebKeyBackend));
+    expect(() => register(new CustomKeyTypeBackend())).not.toThrow();
+    expect(KEY_TYPE_BACKEND_REGISTRY).toContainEqual(expect.any(CustomKeyTypeBackend));
   });
 
-  it.each([CustomJsonWebKeyBackend, Custom2JsonWebKeyBackend])(
-    "should throw when the provided JSON Web Key Key Type is already registered.",
+  it.each([CustomKeyTypeBackend, Custom2KeyTypeBackend])(
+    "should throw when the provided Key Type is already registered.",
     (Backend) => {
       const error = new TypeError("The provided Key Type Backend is already registered.");
       expect(() => register(new Backend())).toThrow(error);
