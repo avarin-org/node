@@ -45,6 +45,10 @@ export class JsonWebSignatureHeader extends JoseHeader<JsonWebSignatureHeaderPar
       throw new InvalidJoseHeaderError('Invalid JOSE Header Parameter "alg".');
     }
 
+    if ("b64" in parameters && (typeof parameters.b64 !== "boolean" || parameters.crit?.includes("b64") !== true)) {
+      throw new InvalidJoseHeaderError('Invalid JOSE Header Parameter "b64".');
+    }
+
     super.validate(parameters);
   }
 }

@@ -381,14 +381,6 @@ describe("JOSE Header", () => {
       expect(() => (header.jsonWebKey = null)).not.toThrow();
     });
 
-    it("should throw when trying to reset the JSON Web Key of the JOSE Header.", () => {
-      const header: JoseHeader = Reflect.construct(JoseHeader, [parameters]);
-      header.jsonWebKey = null;
-
-      const error = new TypeError("The JSON Web Key is already set.");
-      expect(() => (header.jsonWebKey = null)).toThrow(error);
-    });
-
     it("should set the X.509 Certificate Chain of the JOSE Header in the first access.", () => {
       const header: JoseHeader = Reflect.construct(JoseHeader, [parameters]);
 
@@ -399,14 +391,6 @@ describe("JOSE Header", () => {
     it("should set the X.509 Certificate Chain of the JOSE Header.", () => {
       const header: JoseHeader = Reflect.construct(JoseHeader, [parameters]);
       expect(() => (header.certificateChain = null)).not.toThrow();
-    });
-
-    it("should throw when trying to reset the X.509 Certificate Chain of the JOSE Header.", () => {
-      const header: JoseHeader = Reflect.construct(JoseHeader, [parameters]);
-      header.certificateChain = null;
-
-      const error = new TypeError("The X.509 Certificate Chain is already set.");
-      expect(() => (header.certificateChain = null)).toThrow(error);
     });
   });
 });

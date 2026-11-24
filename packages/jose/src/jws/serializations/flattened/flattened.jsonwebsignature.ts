@@ -1,0 +1,31 @@
+import type { Buffer } from "node:buffer";
+
+import type { JsonWebSignatureHeaderParameters } from "../../header/jsonwebsignature.header.parameters.ts";
+import type { JsonWebSignatureHeader } from "../../header/jsonwebsignature.header.ts";
+
+/**
+ * Flattened JSON Web Signature.
+ *
+ * @see {@link https://www.rfc-editor.org/rfc/rfc7515.html#section-7.2.2|RFC 7515 Flattened JWS JSON Serialization Syntax}
+ */
+export interface FlattenedJsonWebSignature {
+  /**
+   * JSON Web Signature Payload.
+   */
+  readonly payload: Buffer;
+
+  /**
+   * JSON Web Signature Header.
+   */
+  readonly header: JsonWebSignatureHeader;
+
+  /**
+   * JSON Web Signature Protected Header.
+   */
+  readonly protectedHeader: Partial<JsonWebSignatureHeaderParameters> | null;
+
+  /**
+   * JSON Web Signature Unprotected Header.
+   */
+  readonly unprotectedHeader: Partial<JsonWebSignatureHeaderParameters> | null;
+}

@@ -46,10 +46,6 @@ export abstract class JoseHeader<T extends JoseHeaderParameters = JoseHeaderPara
    * JSON Web Key used by the JOSE Header.
    */
   public set jsonWebKey(jsonWebKey: JsonWebKey | null) {
-    if (typeof this.#jsonWebKey !== "undefined") {
-      throw new TypeError("The JSON Web Key is already set.");
-    }
-
     this.#jsonWebKey = jsonWebKey;
   }
 
@@ -68,10 +64,6 @@ export abstract class JoseHeader<T extends JoseHeaderParameters = JoseHeaderPara
    * JSON Web Key X.509 Certificate Chain.
    */
   public set certificateChain(certificateChain: X509Certificate[] | null) {
-    if (typeof this.#certificateChain !== "undefined") {
-      throw new TypeError("The X.509 Certificate Chain is already set.");
-    }
-
     this.#certificateChain = certificateChain;
   }
 

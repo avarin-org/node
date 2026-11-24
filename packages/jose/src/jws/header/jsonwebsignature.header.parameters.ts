@@ -16,4 +16,14 @@ export interface JsonWebSignatureHeaderParameters extends JoseHeaderParameters {
    * @see {@link https://www.rfc-editor.org/rfc/rfc7518.html#section-3.1|RFC 7518 "alg" (Algorithm) Header Parameter Values for JWS}
    */
   readonly alg: DigitalSignatureAlgorithm;
+
+  /**
+   * Base64Url Encoded Payload.
+   *
+   * Determines whether the payload is represented in the JWS and the JWS Signing Input as ASCII(BASE64URL(JWS Payload))
+   * or as the JWS Payload value itself with no encoding performed.
+   *
+   * @see {@link https://www.rfc-editor.org/rfc/rfc7797.html#section-3|RFC 7797 The "b64" Header Parameter}
+   */
+  b64?: boolean;
 }
