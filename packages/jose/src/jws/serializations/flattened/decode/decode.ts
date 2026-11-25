@@ -50,7 +50,7 @@ async function getJoseHeader(
   unprotectedHeader: Partial<JsonWebSignatureHeaderParameters> | null,
 ): Promise<JsonWebSignatureHeader> {
   if (!new Set(Object.keys(protectedHeader ?? {})).isDisjointFrom(new Set(Object.keys(unprotectedHeader ?? {})))) {
-    throw new InvalidJoseHeaderError("Cannot have repeated JSON Web Signature Header Parameters.");
+    throw new TypeError("Cannot have repeated JSON Web Signature Header Parameters.");
   }
 
   if (unprotectedHeader !== null) {
@@ -93,7 +93,6 @@ export async function decode(token: FlattenedJsonWebSignatureToken): Promise<Fla
     }
 
     const joseHeader = await getJoseHeader(protectedHeader, unprotectedHeader);
-    const signature = Buffer.from(token.signature, "base64url");
 
     return {
       header: joseHeader,
@@ -102,7 +101,7 @@ export async function decode(token: FlattenedJsonWebSignatureToken): Promise<Fla
           ? Buffer.from(token.payload, joseHeader.parameters.b64 === false ? "utf8" : "base64url")
           : null,
       protectedHeader: "protected" in token ? protectedHeader : null,
-      signature,
+      signature: Buffer.from(token.signature, "base64url"),
       unprotectedHeader: "header" in token ? unprotectedHeader : null,
     };
   } catch (error: unknown) {

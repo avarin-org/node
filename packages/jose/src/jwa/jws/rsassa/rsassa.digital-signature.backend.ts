@@ -39,7 +39,7 @@ export class RSASSADigitalSignatureBackend extends DigitalSignatureBackend {
   ) {
     super(algorithm);
 
-    const bitSize = Number.parseInt(algorithm.slice(2), 10);
+    const bitSize = Number.parseInt(algorithm.substring(2), 10);
 
     this.hash = `sha-${bitSize}`;
     this.padding = algorithm.startsWith("P") ? constants.RSA_PKCS1_PSS_PADDING : constants.RSA_PKCS1_PADDING;

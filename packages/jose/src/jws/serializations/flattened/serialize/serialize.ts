@@ -40,7 +40,7 @@ async function validateHeaders(headers: FlattenedJsonWebSignatureHeaders): Promi
   }
 
   if (!("protectedHeader" in headers) && !("unprotectedHeader" in headers)) {
-    throw new InvalidJoseHeaderError("Missing at least one required JSON Web Signature Header.");
+    throw new TypeError("Missing at least one required JSON Web Signature Header.");
   }
 
   if (
@@ -48,7 +48,7 @@ async function validateHeaders(headers: FlattenedJsonWebSignatureHeaders): Promi
       new Set(Object.keys(headers.unprotectedHeader ?? {})),
     )
   ) {
-    throw new InvalidJoseHeaderError("Cannot have repeated JSON Web Signature Header Parameters.");
+    throw new TypeError("Cannot have repeated JSON Web Signature Header Parameters.");
   }
 
   if ("unprotectedHeader" in headers) {

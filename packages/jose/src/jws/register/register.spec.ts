@@ -49,9 +49,9 @@ const invalidDigitalSignatureBackends: any[] = [
 
 describe("register()", () => {
   it.each(invalidDigitalSignatureBackends)(
-    "should throw when the provided class is not a Digital Signature Backend.",
+    "should throw when the provided class is not a JSON Web Signature Backend.",
     (backend) => {
-      const error = new TypeError("The provided Digital Signature Backend is invalid.");
+      const error = new TypeError("The provided JSON Web Signature Backend is invalid.");
       expect(() => register(backend)).toThrow(error);
     },
   );

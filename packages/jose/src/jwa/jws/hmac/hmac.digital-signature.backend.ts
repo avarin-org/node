@@ -32,7 +32,7 @@ export class HMACDigitalSignatureBackend extends DigitalSignatureBackend {
   public constructor(algorithm: Extract<DigitalSignatureAlgorithm, "HS256" | "HS384" | "HS512">) {
     super(algorithm);
 
-    const bitSize = Number.parseInt(algorithm.slice(2), 10);
+    const bitSize = Number.parseInt(algorithm.substring(2), 10);
 
     this.hash = `sha-${bitSize}`;
     this.keySize = bitSize >> 3;

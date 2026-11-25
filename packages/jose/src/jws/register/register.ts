@@ -5,11 +5,11 @@ import { DIGITAL_SIGNATURE_BACKEND_REGISTRY } from "../../jwa/jws/digital-signat
  * Registers the provided Digital Signature Backend into the Registry.
  *
  * @param backend Digital Signature Backend to be registered.
- * @throws {TypeError} The provided Digital Signature Backend is invalid or is already registered.
+ * @throws {TypeError} The provided JSON Web Signature Backend is invalid or is already registered.
  */
 export function register(backend: DigitalSignatureBackend): void {
   if (!(backend instanceof DigitalSignatureBackend)) {
-    throw new TypeError("The provided Digital Signature Backend is invalid.");
+    throw new TypeError("The provided JSON Web Signature Backend is invalid.");
   }
 
   if (DIGITAL_SIGNATURE_BACKEND_REGISTRY.some((entry) => entry.name === backend.name)) {

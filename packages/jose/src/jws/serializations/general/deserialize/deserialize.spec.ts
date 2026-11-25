@@ -413,10 +413,10 @@ describe("deserialize()", () => {
   );
 
   it.each(invalidJsonWebKeys)(
-    'should throw when the provided signature General JSON Web Signature Deserialize Option "jsonWebKey" is invalid.',
+    'should throw when the provided General JSON Web Signature Deserialize Signature Option "jsonWebKey" is invalid.',
     async (_jsonWebKey) => {
       const error = new TypeError(
-        'The provided signature General JSON Web Signature Deserialize Option "jsonWebKey" is invalid.',
+        'The provided General JSON Web Signature Deserialize Signature Option "jsonWebKey" is invalid.',
       );
 
       await expect(
@@ -426,10 +426,10 @@ describe("deserialize()", () => {
   );
 
   it.each(invalidExpectedAlgorithms)(
-    'should throw when the provided signature General JSON Web Signature Deserialize Option "expectedDigitalSignatureAlgorithms" is invalid.',
+    'should throw when the provided General JSON Web Signature Deserialize Signature Option "expectedDigitalSignatureAlgorithms" is invalid.',
     async (expectedDigitalSignatureAlgorithms) => {
       const error = new TypeError(
-        'The provided signature General JSON Web Signature Deserialize Option "expectedDigitalSignatureAlgorithms" is invalid.',
+        'The provided General JSON Web Signature Deserialize Signature Option "expectedDigitalSignatureAlgorithms" is invalid.',
       );
 
       await expect(

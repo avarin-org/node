@@ -61,7 +61,7 @@ async function getJoseHeader(headers: GeneralJsonWebSignatureHeaders): Promise<G
       new Set(Object.keys(headers.unprotectedHeader ?? {})),
     )
   ) {
-    throw new InvalidJoseHeaderError("Cannot have repeated JSON Web Signature Header Parameters.");
+    throw new TypeError("Cannot have repeated JSON Web Signature Header Parameters.");
   }
 
   if ("unprotectedHeader" in headers) {

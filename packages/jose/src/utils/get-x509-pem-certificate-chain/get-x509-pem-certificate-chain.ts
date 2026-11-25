@@ -17,7 +17,6 @@ export async function getX509PemCertificateChainFromUrl(url: string): Promise<st
   const pemCertificateChain = await response.text();
 
   const pemCertificates = pemCertificateChain.match(
-    // oxlint-disable-next-line prefer-named-capture-group
     /^-----BEGIN CERTIFICATE-----\r?\n((?:(?!-----).*\r?\n)*)-----END CERTIFICATE-----$/gmu,
   );
 

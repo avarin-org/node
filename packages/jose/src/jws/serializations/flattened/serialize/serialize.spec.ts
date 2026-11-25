@@ -233,12 +233,12 @@ describe("serialize()", () => {
   );
 
   it("should throw when no JSON Web Signature Header is provided.", async () => {
-    const error = new InvalidJoseHeaderError("Missing at least one required JSON Web Signature Header.");
+    const error = new TypeError("Missing at least one required JSON Web Signature Header.");
     await expect(serialize(payloadWithoutDot, {})).rejects.toThrow(error);
   });
 
   it("should throw when there are repeated JSON Web Signature Header Parameters.", async () => {
-    const error = new InvalidJoseHeaderError("Cannot have repeated JSON Web Signature Header Parameters.");
+    const error = new TypeError("Cannot have repeated JSON Web Signature Header Parameters.");
 
     await expect(
       serialize(payloadWithoutDot, {

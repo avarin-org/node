@@ -122,7 +122,6 @@ describe("RSASSA Digital Signature Backend.", () => {
 
     describe("padding", () => {
       it("should have the value of crypto.constants.RSA_PKCS1_PSS_PADDING.", () => {
-        // oxlint-disable-next-line typescript/dot-notation
         expect(backend["padding"]).toStrictEqual(crypto.constants.RSA_PKCS1_PSS_PADDING);
       });
     });
@@ -226,7 +225,6 @@ describe("RSASSA Digital Signature Backend.", () => {
 
     describe("padding", () => {
       it("should have the value of crypto.constants.RSA_PKCS1_PSS_PADDING.", () => {
-        // oxlint-disable-next-line typescript/dot-notation
         expect(backend["padding"]).toStrictEqual(crypto.constants.RSA_PKCS1_PSS_PADDING);
       });
     });
@@ -328,7 +326,6 @@ describe("RSASSA Digital Signature Backend.", () => {
 
     describe("padding", () => {
       it("should have the value of crypto.constants.RSA_PKCS1_PSS_PADDING.", () => {
-        // oxlint-disable-next-line typescript/dot-notation
         expect(backend["padding"]).toStrictEqual(crypto.constants.RSA_PKCS1_PSS_PADDING);
       });
     });
@@ -430,7 +427,6 @@ describe("RSASSA Digital Signature Backend.", () => {
 
     describe("padding", () => {
       it("should have the value of crypto.constants.RSA_PKCS1_PADDING.", () => {
-        // oxlint-disable-next-line typescript/dot-notation
         expect(backend["padding"]).toStrictEqual(crypto.constants.RSA_PKCS1_PADDING);
       });
     });
@@ -532,7 +528,6 @@ describe("RSASSA Digital Signature Backend.", () => {
 
     describe("padding", () => {
       it("should have the value of crypto.constants.RSA_PKCS1_PADDING.", () => {
-        // oxlint-disable-next-line typescript/dot-notation
         expect(backend["padding"]).toStrictEqual(crypto.constants.RSA_PKCS1_PADDING);
       });
     });
@@ -634,7 +629,6 @@ describe("RSASSA Digital Signature Backend.", () => {
 
     describe("padding", () => {
       it("should have the value of crypto.constants.RSA_PKCS1_PADDING.", () => {
-        // oxlint-disable-next-line typescript/dot-notation
         expect(backend["padding"]).toStrictEqual(crypto.constants.RSA_PKCS1_PADDING);
       });
     });

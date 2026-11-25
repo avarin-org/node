@@ -47,7 +47,7 @@ export class ECDSADigitalSignatureBackend extends DigitalSignatureBackend {
   public constructor(algorithm: Extract<DigitalSignatureAlgorithm, "ES256" | "ES384" | "ES512">) {
     super(algorithm);
 
-    const bitSize = Number.parseInt(algorithm.slice(2, 5), 10);
+    const bitSize = Number.parseInt(algorithm.substring(2, 5), 10);
 
     this.hash = `sha-${bitSize}`;
     this.curve = this.#algorithmCurveMap[algorithm];

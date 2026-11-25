@@ -42,7 +42,7 @@ function validateOptions(options: SerializeOptions): void {
  * @param protectedHeaderParameters JSON Web Signature Protected Header Parameters.
  * @param options Compact JSON Web Signature serialize options.
  * @returns Compact JSON Web Signature Token.
- * @throws {InvalidJoseHeaderError} The provided JSON Web Signature Protected Header Parameters are invalid.
+ * @throws {InvalidJoseHeaderError} The provided JSON Web Signature Protected Header Parameters is invalid.
  * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to serialize the Compact JSON Web
  *   Signature.
  * @throws {InvalidJsonWebSignatureError} Failed to serialize the Compact JSON Web Signature.

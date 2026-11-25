@@ -143,7 +143,7 @@ describe("create()", () => {
     },
   );
 
-  it("should throw when the provided JSON Web Signature Header Parameters are invalid.", async () => {
+  it("should throw when the provided JSON Web Signature Header Parameters is invalid.", async () => {
     await expect(create({ alg: "A128KW" } as any)).rejects.toThrow(InvalidJoseHeaderError);
   });
 

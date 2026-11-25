@@ -53,6 +53,12 @@
       "import": "./dist/jwa/index.js",
       "default": "./dist/jwa/index.js"
     },
+    "./jwe": {
+      "@avarin/source": "./src/jwe/index.ts",
+      "types": "./dist/jwe/index.d.ts",
+      "import": "./dist/jwe/index.js",
+      "default": "./dist/jwe/index.js"
+    },
     "./jwk": {
       "@avarin/source": "./src/jwk/index.ts",
       "types": "./dist/jwk/index.d.ts",

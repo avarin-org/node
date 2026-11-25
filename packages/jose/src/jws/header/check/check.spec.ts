@@ -25,6 +25,7 @@ const invalidParameters: any[] = [
   { alg: 1 },
   { alg: 1.2 },
   { alg: 1n },
+  { alg: "" },
   { alg: Symbol("a") },
   { alg: Buffer },
   { alg: Buffer.alloc(0) },

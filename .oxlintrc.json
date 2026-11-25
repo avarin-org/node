@@ -43,6 +43,7 @@
     "no-eq-null": "allow",
     "no-inner-declarations": ["error", "both", { "namespaces": "allow" }],
     "no-magic-numbers": "allow",
+    "no-param-reassign": "allow",
     "no-ternary": "allow",
     "no-use-before-define": ["error", { "allowNamedExports": true }],
     "no-warning-comments": "allow",
@@ -52,6 +53,7 @@
     "oxc/no-rest-spread-properties": "allow",
     "prefer-const": ["error", { "destructuring": "all" }],
     "prefer-destructuring": "allow",
+    "prefer-named-capture-group": "allow",
     "require-await": "allow",
     "sort-imports": ["error", { "allowSeparatedGroups": true, "ignoreDeclarationSort": true }],
     "typescript/ban-types": "allow",
@@ -77,7 +79,11 @@
     "typescript/return-await": ["error", "always"],
     "typescript/strict-boolean-expressions": ["error", { "allowNullableBoolean": true }],
     "typescript/strict-void-return": "allow",
-    "typescript/unified-signatures": ["error", { "ignoreDifferentlyNamedParameters": true }],
+    "typescript/switch-exhaustiveness-check": ["error", { "considerDefaultExhaustiveForUnions": true }],
+    "typescript/unified-signatures": [
+      "error",
+      { "ignoreDifferentlyNamedParameters": true, "ignoreOverloadsWithDifferentJSDoc": true }
+    ],
     "unicorn/max-nested-calls": "allow",
     "unicorn/no-array-for-each": "allow",
     "unicorn/no-null": "allow",
@@ -85,6 +91,7 @@
     "unicorn/number-literal-case": "allow",
     "unicorn/prefer-array-some": "allow",
     "unicorn/prefer-number-coercion": "allow",
+    "unicorn/prefer-string-slice": "allow",
     "vitest/consistent-test-filename": ["error", { "pattern": ".*\\.spec\\.ts$" }],
     "vitest/max-expects": "allow",
     "vitest/no-hooks": "allow",
@@ -93,8 +100,9 @@
     "vitest/prefer-importing-vitest-globals": "allow",
     "vitest/prefer-lowercase-title": "allow",
     "vitest/prefer-to-be-falsy": "allow",
-    "vitest/require-test-timeout": "allow",
-    "vitest/prefer-to-be-truthy": "allow"
+    "vitest/prefer-to-be-truthy": "allow",
+    "vitest/require-mock-type-parameters": "allow",
+    "vitest/require-test-timeout": "allow"
   },
   "overrides": [
     {
@@ -119,10 +127,13 @@
         "vitest": "readonly"
       },
       "rules": {
+        "import/no-namespace": "allow",
         "max-classes-per-file": "allow",
         "no-magic-numbers": "allow",
         "no-undefined": "allow",
+        "promise/prefer-await-to-callbacks": "allow",
         "require-await": "allow",
+        "typescript/dot-notation": "allow",
         "typescript/explicit-function-return-type": "allow",
         "typescript/no-explicit-any": "allow",
         "typescript/no-unsafe-argument": "allow",

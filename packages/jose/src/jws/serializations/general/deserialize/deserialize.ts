@@ -41,7 +41,7 @@ function validateOptions(options: DeserializeOptions, signatures: GeneralJsonWeb
         !(signatureOptions.jsonWebKey instanceof JsonWebKey)
       ) {
         throw new TypeError(
-          'The provided signature General JSON Web Signature Deserialize Option "jsonWebKey" is invalid.',
+          'The provided General JSON Web Signature Deserialize Signature Option "jsonWebKey" is invalid.',
         );
       }
 
@@ -54,7 +54,7 @@ function validateOptions(options: DeserializeOptions, signatures: GeneralJsonWeb
           ))
       ) {
         throw new TypeError(
-          'The provided signature General JSON Web Signature Deserialize Option "expectedDigitalSignatureAlgorithms" is invalid.',
+          'The provided General JSON Web Signature Deserialize Signature Option "expectedDigitalSignatureAlgorithms" is invalid.',
         );
       }
     });
