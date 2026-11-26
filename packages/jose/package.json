@@ -76,6 +76,12 @@
       "types": "./dist/jws/index.d.ts",
       "import": "./dist/jws/index.js",
       "default": "./dist/jws/index.js"
+    },
+    "./jwt": {
+      "@avarin/source": "./src/jwt/index.ts",
+      "types": "./dist/jwt/index.d.ts",
+      "import": "./dist/jwt/index.js",
+      "default": "./dist/jwt/index.js"
     }
   },
   "dependencies": {

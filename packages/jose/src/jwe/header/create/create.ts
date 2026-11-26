@@ -11,7 +11,7 @@ import { JsonWebEncryptionHeader } from "../jsonwebencryption.header.ts";
  * Creates a JSON Web Encryption Header based on the provided JSON Web Encryption Header Parameters.
  *
  * @param parameters JSON Web Encryption Header Parameters.
- * @param additionalParameters Optional additional JSON Web Encryption Parameters.
+ * @param additionalParameters Optional additional JSON Web Encryption Header Parameters.
  * @returns JSON Web Encryption Header.
  * @throws {InvalidJoseHeaderError} The provided JSON Web Encryption Header Parameters is invalid.
  */
