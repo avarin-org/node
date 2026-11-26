@@ -21,14 +21,15 @@ interface JsonWebTokenClaimsMethods {
    * @param additionalParameters Optional additional JSON Web Token Claims Parameters.
    * @returns JSON Web Token Claims.
    * @throws {InvalidJsonWebTokenClaimsError} The provided JSON Web Token Claims Parameters is invalid.
+   * @throws {TypeError} One of the provided arguments is invalid.
    */
   readonly create: typeof create;
 
   /**
    * Parses the provided stringified JSON Web Token Claims Parameters into a JSON Web Token Claims.
    *
-   * @param dataOrClaimsConstructor Stringified JSON Web Token Claims Parameters. or JSON Web Token Claims Constructor.
-   * @param dataOrAdditionalParameters Stringified JSON Web Token Claims Parameters. or Optional additional JSON Web
+   * @param dataOrClaimsConstructor Stringified JSON Web Token Claims Parameters or JSON Web Token Claims Constructor.
+   * @param dataOrAdditionalParameters Stringified JSON Web Token Claims Parameters or Optional additional JSON Web
    *   Token Claims Parameters.
    * @param additionalParameters Optional additional JSON Web Token Claims Parameters.
    * @returns JSON Web Token Claims.

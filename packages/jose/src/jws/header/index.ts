@@ -6,6 +6,7 @@ interface JsonWebSignatureHeaderMethods {
   /**
    * Checks if the provided data is a valid JSON Web Signature Header Parameters object.
    *
+   * @param parametersOrHeaderConstructor JSON Web Signature Header Parameters or JSON Web Signature Header Constructor.
    * @param parameters JSON Web Signature Header Parameters.
    * @returns Whether or not the provided data is a valid JSON Web Signature Header Parameters object.
    */
@@ -14,19 +15,25 @@ interface JsonWebSignatureHeaderMethods {
   /**
    * Creates a JSON Web Signature Header based on the provided JSON Web Signature Header Parameters.
    *
-   * @param parameters JSON Web Signature Header Parameters.
-   * @param additionalParameters Optional additional JSON Web Signature Parameters.
+   * @param parametersOrHeaderConstructor JSON Web Signature Header Parameters or JSON Web Signature Header Constructor.
+   * @param parametersOrAdditionalParameters JSON Web Signature Header Parameters or Optional additional JSON Web
+   *   Signature Header Parameters.
+   * @param additionalParameters Optional additional JSON Web Signature Header Parameters.
    * @returns JSON Web Signature Header.
    * @throws {InvalidJoseHeaderError} The provided JSON Web Signature Header Parameters is invalid.
+   * @throws {TypeError} One of the provided arguments is invalid.
    */
   readonly create: typeof create;
 
   /**
    * Parses the provided stringified JSON Web Signature Header Parameters into a JSON Web Signature Header.
    *
-   * @param data Stringified JSON Web Signature Header Parameters.
+   * @param dataOrHeaderConstructor Stringified JSON Web Signature Header Parameters or JSON Web Signature Header
+   *   Constructor.
+   * @param dataOrAdditionalParameters Stringified JSON Web Signature Header Parameters or Optional additional JSON Web
+   *   Signature Header Parameters.
    * @param additionalParameters Optional additional JSON Web Signature Header Parameters.
-   * @returns Parsed JSON Web Signature Header.
+   * @returns JSON Web Signature Header.
    * @throws {InvalidJoseHeaderError} The provided JSON Web Signature Header Parameters is invalid.
    */
   readonly parse: typeof parse;

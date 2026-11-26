@@ -13,6 +13,7 @@ import type { JsonWebTokenClaimsParameters } from "../jsonwebtoken.claims.parame
  * @param additionalParameters Optional additional JSON Web Token Claims Parameters.
  * @returns JSON Web Token Claims.
  * @throws {InvalidJsonWebTokenClaimsError} The provided JSON Web Token Claims Parameters is invalid.
+ * @throws {TypeError} One of the provided arguments is invalid.
  */
 export async function create(
   parameters: JsonWebTokenClaimsParameters,
@@ -27,6 +28,7 @@ export async function create(
  * @param additionalParameters Optional additional JSON Web Token Claims Parameters.
  * @returns JSON Web Token Claims.
  * @throws {InvalidJsonWebTokenClaimsError} The provided JSON Web Token Claims Parameters is invalid.
+ * @throws {TypeError} One of the provided arguments is invalid.
  */
 export async function create<T extends JsonWebTokenClaims>(
   ClaimsConstructor: Constructor<T>,
@@ -43,11 +45,12 @@ export async function create<T extends JsonWebTokenClaims>(
  * @param additionalParameters Optional additional JSON Web Token Claims Parameters.
  * @returns JSON Web Token Claims.
  * @throws {InvalidJsonWebTokenClaimsError} The provided JSON Web Token Claims Parameters is invalid.
+ * @throws {TypeError} One of the provided arguments is invalid.
  */
 export async function create<T extends JsonWebTokenClaims = JsonWebTokenClaims>(
   parametersOrClaimsConstructor: JsonWebTokenClaimsParameters | Constructor<T>,
   parametersOrAdditionalParameters?: JsonWebTokenClaimsParameters | Partial<JsonWebTokenClaimsParameters>,
-  additionalParameters?: Partial<JsonWebTokenClaimsParameters>,
+  additionalParameters: Partial<JsonWebTokenClaimsParameters> = {},
 ): Promise<T> {
   const ClaimsConstructor = Functions.isClass(parametersOrClaimsConstructor)
     ? parametersOrClaimsConstructor
@@ -58,7 +61,7 @@ export async function create<T extends JsonWebTokenClaims = JsonWebTokenClaims>(
     : parametersOrClaimsConstructor;
 
   if (arguments.length === 2 && !Functions.isClass(parametersOrClaimsConstructor)) {
-    additionalParameters = parametersOrAdditionalParameters;
+    additionalParameters = parametersOrAdditionalParameters!;
   }
 
   if (ClaimsConstructor !== JsonWebTokenClaims && !(ClaimsConstructor.prototype instanceof JsonWebTokenClaims)) {
@@ -73,7 +76,7 @@ export async function create<T extends JsonWebTokenClaims = JsonWebTokenClaims>(
     throw new InvalidJsonWebTokenClaimsError("The provided JSON Web Token Claims Parameters is invalid.");
   }
 
-  const jsonWebTokenClaimsParameters: JsonWebTokenClaimsParameters = { ...parameters, ...additionalParameters };
+  const jsonWebTokenClaimsParameters = { ...parameters, ...additionalParameters } as JsonWebTokenClaimsParameters;
 
   return new ClaimsConstructor(jsonWebTokenClaimsParameters) as T;
 }

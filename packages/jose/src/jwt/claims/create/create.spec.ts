@@ -104,6 +104,19 @@ describe("create()", () => {
     expect(claims.parameters).toStrictEqual<JsonWebTokenClaimsParameters>({ ...parameters, ...additionalParameters });
   });
 
+  it("should return a custom JSON Web Token Claims with minimal arguments.", async () => {
+    let claims!: CustomJsonWebTokenClaims;
+
+    await expect(
+      (async () => {
+        claims = await create(CustomJsonWebTokenClaims, parameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(claims).toBeInstanceOf(CustomJsonWebTokenClaims);
+    expect(claims.parameters).toStrictEqual<JsonWebTokenClaimsParameters>(parameters);
+  });
+
   it.each(invalidParameters)(
     "should throw when the provided JSON Web Token Claims Parameters is invalid.",
     async (_parameters) => {
@@ -137,5 +150,19 @@ describe("create()", () => {
     expect(claims).not.toBeInstanceOf(CustomJsonWebTokenClaims);
     expect(claims).toBeInstanceOf(JsonWebTokenClaims);
     expect(claims.parameters).toStrictEqual<JsonWebTokenClaimsParameters>({ ...parameters, ...additionalParameters });
+  });
+
+  it("should return a JSON Web Token Claims with minimal arguments.", async () => {
+    let claims!: JsonWebTokenClaims;
+
+    await expect(
+      (async () => {
+        claims = await create(parameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(claims).not.toBeInstanceOf(CustomJsonWebTokenClaims);
+    expect(claims).toBeInstanceOf(JsonWebTokenClaims);
+    expect(claims.parameters).toStrictEqual<JsonWebTokenClaimsParameters>(parameters);
   });
 });

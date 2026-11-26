@@ -8,12 +8,14 @@ import { InvalidJoseHeaderError } from "../../../errors/invalid-jose-header.erro
 import { InvalidJsonWebKeyError } from "../../../errors/invalid-jsonwebkey.error.ts";
 import { JsonWebKey } from "../../../jwk/jsonwebkey.ts";
 import type { JsonWebSignatureHeaderParameters } from "../jsonwebsignature.header.parameters.ts";
-import type { JsonWebSignatureHeader } from "../jsonwebsignature.header.ts";
+import { JsonWebSignatureHeader } from "../jsonwebsignature.header.ts";
 import { create } from "./create.ts";
+
+class CustomJsonWebSignatureHeader extends JsonWebSignatureHeader {}
 
 const fetchMock = vi.fn<typeof globalThis.fetch>();
 
-const invalidParameters: any[] = [
+const invalidParametersWithConstructor: any[] = [
   undefined,
   null,
   true,
@@ -27,6 +29,8 @@ const invalidParameters: any[] = [
   () => 1,
   [],
 ];
+
+const invalidParameters: any[] = [undefined, null, true, 1, 1.2, 1n, "a", Symbol("a"), Buffer.alloc(1), () => 1, []];
 
 const invalidAdditionalParameters: any[] = [
   null,
@@ -114,6 +118,8 @@ describe("create()", () => {
     ],
   };
 
+  const additionalParameters: Partial<JsonWebSignatureHeaderParameters> = { kid: "rsa-key" };
+
   const pemCertificateChain = parametersWithJwkAndX509Chain
     .x5c!.map((certificate) => `-----BEGIN CERTIFICATE-----\n${certificate}\n-----END CERTIFICATE-----\n`)
     .join("");
@@ -127,6 +133,184 @@ describe("create()", () => {
     vi.resetAllMocks();
   });
 
+  it("should throw when the provided JSON Web Signature Header Constructor is invalid.", async () => {
+    const error = new TypeError("The provided JSON Web Signature Header Constructor is invalid.");
+    await expect(create(Buffer as any, parameters)).rejects.toThrow(error);
+  });
+
+  it.each(invalidParametersWithConstructor)(
+    "should throw when the provided JSON Web Signature Header Parameters is invalid with a custom JSON Web Signature Header Constructor.",
+    async (_parameters) => {
+      const error = new InvalidJoseHeaderError("The provided JSON Web Signature Header Parameters is invalid.");
+      await expect(create(CustomJsonWebSignatureHeader, _parameters)).rejects.toThrow(error);
+    },
+  );
+
+  it.each(invalidAdditionalParameters)(
+    "should throw when the provided additional JSON Web Signature Header Parameters is invalid with a custom JSON Web Signature Header Constructor.",
+    async (_additionalParameters) => {
+      const error = new InvalidJoseHeaderError("The provided JSON Web Signature Header Parameters is invalid.");
+      await expect(create(CustomJsonWebSignatureHeader, parameters, _additionalParameters)).rejects.toThrow(error);
+    },
+  );
+
+  it("should throw when the provided JSON Web Signature Header Parameters is invalid with a custom JSON Web Signature Header Constructor.", async () => {
+    await expect(create(CustomJsonWebSignatureHeader, { alg: "A128KW" } as any, additionalParameters)).rejects.toThrow(
+      InvalidJoseHeaderError,
+    );
+  });
+
+  it("should throw when failing to get a JSON Web Key from the provided JSON Web Signature Header Parameters with a custom JSON Web Signature Header Constructor.", async () => {
+    await expect(
+      create(CustomJsonWebSignatureHeader, { ...parameters, jwk: { e: "AQAB", kty: "oct" } }, additionalParameters),
+    ).rejects.toThrow(InvalidJoseHeaderError);
+  });
+
+  it("should throw when failing to get a X.509 Certificate Chain from the provided JSON Web Signature Header Parameters with a custom JSON Web Signature Header Constructor.", async () => {
+    await expect(
+      create(CustomJsonWebSignatureHeader, { ...parameters, x5c: ["abcdef0123456789"] }, additionalParameters),
+    ).rejects.toThrow(InvalidJsonWebKeyError);
+  });
+
+  it("should throw when the X.509 Certificate fails to verify the JSON Web Key with a custom JSON Web Signature Header Constructor.", async () => {
+    await expect(
+      create(
+        CustomJsonWebSignatureHeader,
+        { ...parametersWithJwkAndX509Chain, x5c: [parametersWithJwkAndX509Chain.x5c![1]!] },
+        additionalParameters,
+      ),
+    ).rejects.toThrow(InvalidJsonWebKeyError);
+  });
+
+  it("should return a JSON Web Signature Header without a JSON Web Key and an X.509 Certificate Chain with a custom JSON Web Signature Header Constructor.", async () => {
+    let header!: JsonWebSignatureHeader;
+
+    await expect(
+      (async () => {
+        header = await create(CustomJsonWebSignatureHeader, parameters, additionalParameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(header.certificateChain).toBeNull();
+    expect(header.jsonWebKey).toBeNull();
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({
+      ...parameters,
+      ...additionalParameters,
+    });
+  });
+
+  it('should return a JSON Web Signature Header with a JSON Web Key from the provided JSON Web Signature Header Parameter "jku" with a custom JSON Web Signature Header Constructor.', async () => {
+    let header!: JsonWebSignatureHeader;
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ keys: [parametersWithJwkAndX509Chain.jwk!] }),
+    } as Response);
+
+    const params: JsonWebSignatureHeaderParameters = { ...parameters, jku: "https://jsonwebkeyset.example.com" };
+
+    await expect(
+      (async () => {
+        header = await create(CustomJsonWebSignatureHeader, params, additionalParameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(header.certificateChain).toBeNull();
+
+    expect(header.jsonWebKey).toBeInstanceOf(JsonWebKey);
+    expect(header.jsonWebKey!.parameters).toStrictEqual(parametersWithJwkAndX509Chain.jwk);
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...params, ...additionalParameters });
+  });
+
+  it('should return a JSON Web Signature Header with a JSON Web Key from the provided JSON Web Signature Header Parameter "jwk" with a custom JSON Web Signature Header Constructor.', async () => {
+    let header!: JsonWebSignatureHeader;
+
+    const { x5c: _, ...params } = parametersWithJwkAndX509Chain;
+
+    await expect(
+      (async () => {
+        header = await create(CustomJsonWebSignatureHeader, params, additionalParameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(header.certificateChain).toBeNull();
+
+    expect(header.jsonWebKey).toBeInstanceOf(JsonWebKey);
+    expect(header.jsonWebKey!.parameters).toStrictEqual(parametersWithJwkAndX509Chain.jwk);
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...params, ...additionalParameters });
+  });
+
+  it('should return a JSON Web Signature Header with an X.509 Certificate Chain from the provided JSON Web Signature Header Parameter "x5u" with a custom JSON Web Signature Header Constructor.', async () => {
+    let header!: JsonWebSignatureHeader;
+
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, text: async () => pemCertificateChain } as Response);
+
+    const params: JsonWebSignatureHeaderParameters = { ...parameters, x5u: "https://certificate.example.com" };
+
+    await expect(
+      (async () => {
+        header = await create(CustomJsonWebSignatureHeader, params, additionalParameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(header.certificateChain).toHaveLength(3);
+    expect(header.certificateChain).toSatisfy((value: unknown[]) =>
+      value.every((certificate) => certificate instanceof X509Certificate),
+    );
+
+    expect(header.jsonWebKey).toBeNull();
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...params, ...additionalParameters });
+  });
+
+  it('should return a JSON Web Signature Header with an X.509 Certificate Chain from the provided JSON Web Signature Header Parameter "x5c" with a custom JSON Web Signature Header Constructor.', async () => {
+    let header!: JsonWebSignatureHeader;
+
+    const { jwk: _, ...params } = parametersWithJwkAndX509Chain;
+
+    await expect(
+      (async () => {
+        header = await create(CustomJsonWebSignatureHeader, params, additionalParameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(header.certificateChain).toHaveLength(3);
+    expect(header.certificateChain).toSatisfy((value: unknown[]) =>
+      value.every((certificate) => certificate instanceof X509Certificate),
+    );
+
+    expect(header.jsonWebKey).toBeNull();
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...params, ...additionalParameters });
+  });
+
+  it("should return a JSON Web Signature Header with a JSON Web Key and an X.509 Certificate Chain with a custom JSON Web Signature Header Constructor.", async () => {
+    let header!: JsonWebSignatureHeader;
+
+    await expect(
+      (async () => {
+        header = await create(CustomJsonWebSignatureHeader, parametersWithJwkAndX509Chain, additionalParameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(header.certificateChain).toHaveLength(3);
+    expect(header.certificateChain).toSatisfy((value: unknown[]) =>
+      value.every((certificate) => certificate instanceof X509Certificate),
+    );
+
+    expect(header.jsonWebKey).toBeInstanceOf(JsonWebKey);
+    expect(header.jsonWebKey!.parameters).toStrictEqual(parametersWithJwkAndX509Chain.jwk);
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({
+      ...parametersWithJwkAndX509Chain,
+      ...additionalParameters,
+    });
+  });
+
   it.each(invalidParameters)(
     "should throw when the provided JSON Web Signature Header Parameters is invalid.",
     async (_parameters) => {
@@ -135,32 +319,38 @@ describe("create()", () => {
     },
   );
 
+  it("should throw when the provided JSON Web Signature Header Constructor is invalid and the only argument.", async () => {
+    const error = new TypeError("The provided JSON Web Signature Header Constructor is invalid.");
+    await expect(create(Buffer as any)).rejects.toThrow(error);
+  });
+
   it.each(invalidAdditionalParameters)(
     "should throw when the provided additional JSON Web Signature Header Parameters is invalid.",
-    async (additionalParameters) => {
+    async (_additionalParameters) => {
       const error = new InvalidJoseHeaderError("The provided JSON Web Signature Header Parameters is invalid.");
-      await expect(create(parameters, additionalParameters)).rejects.toThrow(error);
+      await expect(create(parameters, _additionalParameters)).rejects.toThrow(error);
     },
   );
 
   it("should throw when the provided JSON Web Signature Header Parameters is invalid.", async () => {
-    await expect(create({ alg: "A128KW" } as any)).rejects.toThrow(InvalidJoseHeaderError);
+    await expect(create({ alg: "A128KW" } as any, additionalParameters)).rejects.toThrow(InvalidJoseHeaderError);
   });
 
   it("should throw when failing to get a JSON Web Key from the provided JSON Web Signature Header Parameters.", async () => {
-    await expect(create({ ...parameters, jwk: { e: "AQAB", kty: "oct" } })).rejects.toThrow(InvalidJoseHeaderError);
+    await expect(create({ ...parameters, jwk: { e: "AQAB", kty: "oct" } }, additionalParameters)).rejects.toThrow(
+      InvalidJoseHeaderError,
+    );
   });
 
   it("should throw when failing to get a X.509 Certificate Chain from the provided JSON Web Signature Header Parameters.", async () => {
-    await expect(create({ ...parameters, x5c: ["abcdef0123456789"] })).rejects.toThrow(InvalidJsonWebKeyError);
+    await expect(create({ ...parameters, x5c: ["abcdef0123456789"] }, additionalParameters)).rejects.toThrow(
+      InvalidJsonWebKeyError,
+    );
   });
 
   it("should throw when the X.509 Certificate fails to verify the JSON Web Key.", async () => {
     await expect(
-      create({
-        ...parametersWithJwkAndX509Chain,
-        x5c: [parametersWithJwkAndX509Chain.x5c![1]!],
-      }),
+      create({ ...parametersWithJwkAndX509Chain, x5c: [parametersWithJwkAndX509Chain.x5c![1]!] }, additionalParameters),
     ).rejects.toThrow(InvalidJsonWebKeyError);
   });
 
@@ -169,13 +359,17 @@ describe("create()", () => {
 
     await expect(
       (async () => {
-        header = await create(parameters, { kid: "rsa-key" });
+        header = await create(parameters, additionalParameters);
       })(),
     ).resolves.not.toThrow();
 
     expect(header.certificateChain).toBeNull();
     expect(header.jsonWebKey).toBeNull();
-    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...parameters, kid: "rsa-key" });
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({
+      ...parameters,
+      ...additionalParameters,
+    });
   });
 
   it('should return a JSON Web Signature Header with a JSON Web Key from the provided JSON Web Signature Header Parameter "jku".', async () => {
@@ -195,7 +389,7 @@ describe("create()", () => {
 
     await expect(
       (async () => {
-        header = await create(params);
+        header = await create(params, additionalParameters);
       })(),
     ).resolves.not.toThrow();
 
@@ -204,7 +398,7 @@ describe("create()", () => {
     expect(header.jsonWebKey).toBeInstanceOf(JsonWebKey);
     expect(header.jsonWebKey!.parameters).toStrictEqual(parametersWithJwkAndX509Chain.jwk);
 
-    expect(header.parameters).toStrictEqual(params);
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...params, ...additionalParameters });
   });
 
   it('should return a JSON Web Signature Header with a JSON Web Key from the provided JSON Web Signature Header Parameter "jwk".', async () => {
@@ -214,7 +408,7 @@ describe("create()", () => {
 
     await expect(
       (async () => {
-        header = await create(params);
+        header = await create(params, additionalParameters);
       })(),
     ).resolves.not.toThrow();
 
@@ -223,7 +417,7 @@ describe("create()", () => {
     expect(header.jsonWebKey).toBeInstanceOf(JsonWebKey);
     expect(header.jsonWebKey!.parameters).toStrictEqual(parametersWithJwkAndX509Chain.jwk);
 
-    expect(header.parameters).toStrictEqual(params);
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...params, ...additionalParameters });
   });
 
   it('should return a JSON Web Signature Header with an X.509 Certificate Chain from the provided JSON Web Signature Header Parameter "x5u".', async () => {
@@ -235,7 +429,7 @@ describe("create()", () => {
 
     await expect(
       (async () => {
-        header = await create(params);
+        header = await create(params, additionalParameters);
       })(),
     ).resolves.not.toThrow();
 
@@ -246,7 +440,7 @@ describe("create()", () => {
 
     expect(header.jsonWebKey).toBeNull();
 
-    expect(header.parameters).toStrictEqual(params);
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...params, ...additionalParameters });
   });
 
   it('should return a JSON Web Signature Header with an X.509 Certificate Chain from the provided JSON Web Signature Header Parameter "x5c".', async () => {
@@ -256,7 +450,7 @@ describe("create()", () => {
 
     await expect(
       (async () => {
-        header = await create(params);
+        header = await create(params, additionalParameters);
       })(),
     ).resolves.not.toThrow();
 
@@ -267,7 +461,7 @@ describe("create()", () => {
 
     expect(header.jsonWebKey).toBeNull();
 
-    expect(header.parameters).toStrictEqual(params);
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({ ...params, ...additionalParameters });
   });
 
   it("should return a JSON Web Signature Header with a JSON Web Key and an X.509 Certificate Chain.", async () => {
@@ -275,7 +469,7 @@ describe("create()", () => {
 
     await expect(
       (async () => {
-        header = await create(parametersWithJwkAndX509Chain);
+        header = await create(parametersWithJwkAndX509Chain, additionalParameters);
       })(),
     ).resolves.not.toThrow();
 
@@ -287,6 +481,9 @@ describe("create()", () => {
     expect(header.jsonWebKey).toBeInstanceOf(JsonWebKey);
     expect(header.jsonWebKey!.parameters).toStrictEqual(parametersWithJwkAndX509Chain.jwk);
 
-    expect(header.parameters).toStrictEqual(parametersWithJwkAndX509Chain);
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({
+      ...parametersWithJwkAndX509Chain,
+      ...additionalParameters,
+    });
   });
 });

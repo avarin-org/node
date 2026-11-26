@@ -7,8 +7,10 @@ import { describe, expect, it } from "vitest";
 import { InvalidJoseHeaderError } from "../../../errors/invalid-jose-header.error.ts";
 import { JsonWebKey } from "../../../jwk/jsonwebkey.ts";
 import type { JsonWebSignatureHeaderParameters } from "../jsonwebsignature.header.parameters.ts";
-import type { JsonWebSignatureHeader } from "../jsonwebsignature.header.ts";
+import { JsonWebSignatureHeader } from "../jsonwebsignature.header.ts";
 import { parse } from "./parse.ts";
+
+class CustomJsonWebSignatureHeader extends JsonWebSignatureHeader {}
 
 const invalidParameters: any[] = [
   undefined,
@@ -114,6 +116,79 @@ describe("parse()", () => {
     ],
   };
 
+  const additionalParameters: Partial<JsonWebSignatureHeaderParameters> = { kid: "rsa-key" };
+
+  it("should throw when the provided JSON Web Signature Header Constructor is invalid.", async () => {
+    const error = new InvalidJoseHeaderError("The provided JSON Web Signature Header Parameters is invalid.", {
+      cause: new TypeError("The provided JSON Web Signature Header Constructor is invalid."),
+    });
+
+    await expect(parse(Buffer as any, JSON.stringify(parameters))).rejects.toThrow(error);
+  });
+
+  it.each(invalidParameters)(
+    "should throw when the provided JSON Web Key Parameters is invalid with a custom JSON Web Signature Header Constructor.",
+    async (_parameters) => {
+      const error = new InvalidJoseHeaderError("The provided JSON Web Signature Header Parameters is invalid.");
+      await expect(parse(CustomJsonWebSignatureHeader, _parameters)).rejects.toThrow(error);
+    },
+  );
+
+  it.each(invalidAdditionalParameters)(
+    "should throw when the provided additional JSON Web Key Parameters is invalid with a custom JSON Web Signature Header Constructor.",
+    async (_additionalParameters) => {
+      const error = new InvalidJoseHeaderError("The provided JSON Web Signature Header Parameters is invalid.");
+      await expect(
+        parse(CustomJsonWebSignatureHeader, JSON.stringify(parameters), _additionalParameters),
+      ).rejects.toThrow(error);
+    },
+  );
+
+  it("should return a JSON Web Signature Header with a custom JSON Web Signature Header Constructor.", async () => {
+    let header!: JsonWebSignatureHeader;
+
+    await expect(
+      (async () => {
+        header = await parse(CustomJsonWebSignatureHeader, JSON.stringify(parameters), additionalParameters);
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({
+      ...parameters,
+      ...additionalParameters,
+    });
+
+    expect(header.jsonWebKey).toBeNull();
+    expect(header.certificateChain).toBeNull();
+  });
+
+  it("should return a JSON Web Signature Header with a JSON Web Key and an X.509 Certificate Chain with a custom JSON Web Signature Header Constructor.", async () => {
+    let header!: JsonWebSignatureHeader;
+
+    await expect(
+      (async () => {
+        header = await parse(
+          CustomJsonWebSignatureHeader,
+          JSON.stringify(parametersWithJwkAndX509Chain),
+          additionalParameters,
+        );
+      })(),
+    ).resolves.not.toThrow();
+
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({
+      ...parametersWithJwkAndX509Chain,
+      ...additionalParameters,
+    });
+
+    expect(header.jsonWebKey).toBeInstanceOf(JsonWebKey);
+    expect(header.jsonWebKey!.parameters).toStrictEqual(parametersWithJwkAndX509Chain.jwk!);
+
+    expect(header.certificateChain).toHaveLength(3);
+    expect(header.certificateChain).toSatisfy((value: unknown[]) =>
+      value.every((certificate) => certificate instanceof X509Certificate),
+    );
+  });
+
   it.each(invalidParameters)(
     "should throw when the provided JSON Web Key Parameters is invalid.",
     async (_parameters) => {
@@ -124,9 +199,9 @@ describe("parse()", () => {
 
   it.each(invalidAdditionalParameters)(
     "should throw when the provided additional JSON Web Key Parameters is invalid.",
-    async (additionalParameters) => {
+    async (_additionalParameters) => {
       const error = new InvalidJoseHeaderError("The provided JSON Web Signature Header Parameters is invalid.");
-      await expect(parse(JSON.stringify(parameters), additionalParameters)).rejects.toThrow(error);
+      await expect(parse(JSON.stringify(parameters), _additionalParameters)).rejects.toThrow(error);
     },
   );
 
@@ -135,11 +210,15 @@ describe("parse()", () => {
 
     await expect(
       (async () => {
-        header = await parse(JSON.stringify(parameters));
+        header = await parse(JSON.stringify(parameters), additionalParameters);
       })(),
     ).resolves.not.toThrow();
 
-    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>(parameters);
+    expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({
+      ...parameters,
+      ...additionalParameters,
+    });
+
     expect(header.jsonWebKey).toBeNull();
     expect(header.certificateChain).toBeNull();
   });
@@ -149,13 +228,13 @@ describe("parse()", () => {
 
     await expect(
       (async () => {
-        header = await parse(JSON.stringify(parametersWithJwkAndX509Chain), { kid: "rsa-key" });
+        header = await parse(JSON.stringify(parametersWithJwkAndX509Chain), additionalParameters);
       })(),
     ).resolves.not.toThrow();
 
     expect(header.parameters).toStrictEqual<JsonWebSignatureHeaderParameters>({
       ...parametersWithJwkAndX509Chain,
-      kid: "rsa-key",
+      ...additionalParameters,
     });
 
     expect(header.jsonWebKey).toBeInstanceOf(JsonWebKey);

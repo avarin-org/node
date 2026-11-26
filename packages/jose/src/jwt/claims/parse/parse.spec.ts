@@ -17,12 +17,15 @@ const invalidParameters: any[] = [
   1,
   1.2,
   1n,
-  "a",
   Symbol("a"),
   Buffer,
   Buffer.alloc(1),
   () => 1,
   [],
+  {},
+  "",
+  "a",
+  "{",
 ];
 
 const invalidAdditionalParameters: any[] = [
