@@ -3,8 +3,8 @@ import { Buffer } from "node:buffer";
 import { describe, expect, it } from "vitest";
 
 import { InvalidJoseHeaderError } from "../../errors/invalid-jose-header.error.ts";
-import { DigitalSignatureBackend } from "../../jwa/index.ts";
 import { DIGITAL_SIGNATURE_BACKEND_REGISTRY } from "../../jwa/jws/digital-signature.backend.registry.ts";
+import { DigitalSignatureBackend } from "../../jwa/jws/digital-signature.backend.ts";
 import type { JsonWebSignatureHeaderParameters } from "./jsonwebsignature.header.parameters.ts";
 import { JsonWebSignatureHeader } from "./jsonwebsignature.header.ts";
 

@@ -1,8 +1,6 @@
-import type {
-  CompressionAlgorithm,
-  ContentEncryptionAlgorithm,
-  KeyManagementAlgorithm,
-} from "../../../../jwa/index.ts";
+import type { KeyManagementAlgorithm } from "../../../../jwa/jwe/alg/key-management-algorithm.type.ts";
+import type { ContentEncryptionAlgorithm } from "../../../../jwa/jwe/enc/content-encryption-algorithm.type.ts";
+import type { CompressionAlgorithm } from "../../../../jwa/jwe/zip/compression-algorithm.type.ts";
 import type { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
 
 /**

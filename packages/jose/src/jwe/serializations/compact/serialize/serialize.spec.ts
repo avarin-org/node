@@ -2,9 +2,9 @@ import { Buffer } from "node:buffer";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { OctetSequenceJsonWebKeyParameters } from "../../../../jwa/index.ts";
 import { AESKWKeyManagementBackend } from "../../../../jwa/jwe/alg/aeskw/aeskw.key-management.backend.ts";
 import { AESCBCContentEncryptionBackend } from "../../../../jwa/jwe/enc/aescbc/aescbc.content-encryption.backend.ts";
+import type { OctetSequenceJsonWebKeyParameters } from "../../../../jwa/jwk/oct/octet-sequence.jsonwebkey.parameters.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
 import { serialize } from "./serialize.ts";

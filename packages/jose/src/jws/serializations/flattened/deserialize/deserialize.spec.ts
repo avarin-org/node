@@ -3,7 +3,7 @@ import { Buffer } from "node:buffer";
 import { describe, expect, it } from "vitest";
 
 import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonwebsignature.error.ts";
-import type { OctetSequenceJsonWebKeyParameters } from "../../../../jwa/index.ts";
+import type { OctetSequenceJsonWebKeyParameters } from "../../../../jwa/jwk/oct/octet-sequence.jsonwebkey.parameters.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
 import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
 import { JsonWebSignatureHeader } from "../../../header/jsonwebsignature.header.ts";

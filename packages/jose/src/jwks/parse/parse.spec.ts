@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { InvalidJsonWebKeySetError } from "../../errors/invalid-jsonwebkeyset.error.ts";
 import type { EllipticCurveJsonWebKeyParameters } from "../../jwa/jwk/ec/elliptic-curve.jsonwebkey.parameters.ts";
 import type { RsaJsonWebKeyParameters } from "../../jwa/jwk/rsa/rsa.jsonwebkey.parameters.ts";
-import type { JsonWebKeyParameters } from "../../jwk/index.ts";
+import type { JsonWebKeyParameters } from "../../jwk/jsonwebkey.parameters.ts";
 import { JsonWebKey } from "../../jwk/jsonwebkey.ts";
 import type { JsonWebKeySetParameters } from "../jsonwebkeyset.parameters.ts";
 import type { JsonWebKeySet } from "../jsonwebkeyset.ts";

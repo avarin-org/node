@@ -1,7 +1,7 @@
 import { InvalidJoseHeaderError } from "../../errors/invalid-jose-header.error.ts";
 import type { JoseHeaderParameters } from "../../jose/jose-header.parameters.ts";
-import type { JsonWebKey } from "../../jwk/index.ts";
 import { jwk } from "../../jwk/index.ts";
+import type { JsonWebKey } from "../../jwk/jsonwebkey.ts";
 import { getJsonWebKeySetFromUrl } from "../get-jsonwebkeyset-from-url/get-jsonwebkeyset-from-url.ts";
 
 /**

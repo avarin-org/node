@@ -2,8 +2,9 @@ import { Buffer } from "node:buffer";
 
 import { describe, expect, it } from "vitest";
 
-import { DigitalSignatureBackend, RSASSADigitalSignatureBackend } from "../../jwa/index.ts";
 import { DIGITAL_SIGNATURE_BACKEND_REGISTRY } from "../../jwa/jws/digital-signature.backend.registry.ts";
+import { DigitalSignatureBackend } from "../../jwa/jws/digital-signature.backend.ts";
+import { RSASSADigitalSignatureBackend } from "../../jwa/jws/rsassa/rsassa.digital-signature.backend.ts";
 import type { JsonWebKey } from "../../jwk/jsonwebkey.ts";
 import { register } from "./register.ts";
 

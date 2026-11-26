@@ -3,13 +3,11 @@ import { Buffer } from "node:buffer";
 import { Objects } from "@avarin/primitives/objects";
 
 import { InvalidJsonWebEncryptionError } from "../../../../errors/invalid-jsonwebencryption.error.ts";
-import type {
-  CompressionAlgorithm,
-  ContentEncryptionAlgorithm,
-  KeyManagementAlgorithm,
-} from "../../../../jwa/index.ts";
+import type { KeyManagementAlgorithm } from "../../../../jwa/jwe/alg/key-management-algorithm.type.ts";
 import { KEY_MANAGEMENT_BACKEND_REGISTRY } from "../../../../jwa/jwe/alg/key-management.backend.registry.ts";
+import type { ContentEncryptionAlgorithm } from "../../../../jwa/jwe/enc/content-encryption-algorithm.type.ts";
 import { CONTENT_ENCRYPTION_BACKEND_REGISTRY } from "../../../../jwa/jwe/enc/content-encryption.backend.registry.ts";
+import type { CompressionAlgorithm } from "../../../../jwa/jwe/zip/compression-algorithm.type.ts";
 import { COMPRESSION_BACKEND_REGISTRY } from "../../../../jwa/jwe/zip/compression.backend.registry.ts";
 import { CompressionBackend } from "../../../../jwa/jwe/zip/compression.backend.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";

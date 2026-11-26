@@ -3,15 +3,13 @@ import { Buffer } from "node:buffer";
 import { Objects } from "@avarin/primitives/objects";
 
 import { InvalidJsonWebEncryptionError } from "../../../../errors/invalid-jsonwebencryption.error.ts";
-import type {
-  CompressionAlgorithm,
-  ContentEncryptionAlgorithm,
-  DigitalSignatureAlgorithm,
-} from "../../../../jwa/index.ts";
 import { KEY_MANAGEMENT_BACKEND_REGISTRY } from "../../../../jwa/jwe/alg/key-management.backend.registry.ts";
+import type { ContentEncryptionAlgorithm } from "../../../../jwa/jwe/enc/content-encryption-algorithm.type.ts";
 import { CONTENT_ENCRYPTION_BACKEND_REGISTRY } from "../../../../jwa/jwe/enc/content-encryption.backend.registry.ts";
+import type { CompressionAlgorithm } from "../../../../jwa/jwe/zip/compression-algorithm.type.ts";
 import { COMPRESSION_BACKEND_REGISTRY } from "../../../../jwa/jwe/zip/compression.backend.registry.ts";
 import { CompressionBackend } from "../../../../jwa/jwe/zip/compression.backend.ts";
+import type { DigitalSignatureAlgorithm } from "../../../../jwa/jws/digital-signature-algorithm.type.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
 import type { CompactJsonWebEncryption } from "../compact.jsonwebencryption.ts";

@@ -4,7 +4,7 @@ import { JSON } from "@avarin/primitives/json";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InvalidJsonWebEncryptionError } from "../../../../errors/invalid-jsonwebencryption.error.ts";
-import type { OctetSequenceJsonWebKeyParameters } from "../../../../jwa/index.ts";
+import type { OctetSequenceJsonWebKeyParameters } from "../../../../jwa/jwk/oct/octet-sequence.jsonwebkey.parameters.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
 import { JsonWebEncryptionHeader } from "../../../header/jsonwebencryption.header.ts";

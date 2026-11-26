@@ -1,6 +1,6 @@
 import type { JSON } from "@avarin/primitives/json";
 
-import type { JoseAlgorithm } from "../jwa/index.ts";
+import type { JoseAlgorithm } from "../jwa/jose/jose-algorithm.type.ts";
 import type { JsonWebKeyParameters } from "../jwk/jsonwebkey.parameters.ts";
 
 /**

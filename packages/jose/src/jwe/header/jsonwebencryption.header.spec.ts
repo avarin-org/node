@@ -3,11 +3,13 @@ import { Buffer } from "node:buffer";
 import { describe, expect, it } from "vitest";
 
 import { InvalidJoseHeaderError } from "../../errors/invalid-jose-header.error.ts";
-import type { CompressionAlgorithm, ContentEncryptionAlgorithm, KeyManagementAlgorithm } from "../../jwa/index.ts";
+import type { KeyManagementAlgorithm } from "../../jwa/jwe/alg/key-management-algorithm.type.ts";
 import { KEY_MANAGEMENT_BACKEND_REGISTRY } from "../../jwa/jwe/alg/key-management.backend.registry.ts";
 import { KeyManagementBackend } from "../../jwa/jwe/alg/key-management.backend.ts";
+import type { ContentEncryptionAlgorithm } from "../../jwa/jwe/enc/content-encryption-algorithm.type.ts";
 import { CONTENT_ENCRYPTION_BACKEND_REGISTRY } from "../../jwa/jwe/enc/content-encryption.backend.registry.ts";
 import { ContentEncryptionBackend } from "../../jwa/jwe/enc/content-encryption.backend.ts";
+import type { CompressionAlgorithm } from "../../jwa/jwe/zip/compression-algorithm.type.ts";
 import { CompressionBackend } from "../../jwa/jwe/zip/compression.backend.ts";
 import type { JsonWebEncryptionHeaderParameters } from "./jsonwebencryption.header.parameters.ts";
 import { JsonWebEncryptionHeader } from "./jsonwebencryption.header.ts";

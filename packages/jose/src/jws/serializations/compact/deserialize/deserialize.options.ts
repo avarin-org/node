@@ -1,6 +1,6 @@
 import type { Buffer } from "node:buffer";
 
-import type { DigitalSignatureAlgorithm } from "../../../../jwa/index.ts";
+import type { DigitalSignatureAlgorithm } from "../../../../jwa/jws/digital-signature-algorithm.type.ts";
 import type { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
 
 /**

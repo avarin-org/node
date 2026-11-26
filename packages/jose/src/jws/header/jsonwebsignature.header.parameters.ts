@@ -1,5 +1,5 @@
 import type { JoseHeaderParameters } from "../../jose/jose-header.parameters.ts";
-import type { DigitalSignatureAlgorithm } from "../../jwa/index.ts";
+import type { DigitalSignatureAlgorithm } from "../../jwa/jws/digital-signature-algorithm.type.ts";
 
 /**
  * JSON Web Signature Header Parameters.

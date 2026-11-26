@@ -6,7 +6,7 @@ import { InvalidJsonWebKeySetError } from "../../errors/invalid-jsonwebkeyset.er
 import type { EllipticCurveJsonWebKeyParameters } from "../../jwa/jwk/ec/elliptic-curve.jsonwebkey.parameters.ts";
 import type { RsaJsonWebKeyParameters } from "../../jwa/jwk/rsa/rsa.jsonwebkey.parameters.ts";
 import { jwk } from "../../jwk/index.ts";
-import type { JsonWebKeyParameters } from "../../jwk/index.ts";
+import type { JsonWebKeyParameters } from "../../jwk/jsonwebkey.parameters.ts";
 import { JsonWebKey } from "../../jwk/jsonwebkey.ts";
 import type { JsonWebKeySetParameters } from "../jsonwebkeyset.parameters.ts";
 import type { JsonWebKeySet } from "../jsonwebkeyset.ts";

@@ -4,8 +4,9 @@ import * as crypto from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InvalidJoseHeaderError } from "../../../../errors/invalid-jose-header.error.ts";
-import type { KeyManagementAlgorithm, OctetSequenceJsonWebKeyParameters } from "../../../../jwa/index.ts";
+import type { KeyManagementAlgorithm } from "../../../../jwa/jwe/alg/key-management-algorithm.type.ts";
 import { AESCBCContentEncryptionBackend } from "../../../../jwa/jwe/enc/aescbc/aescbc.content-encryption.backend.ts";
+import type { OctetSequenceJsonWebKeyParameters } from "../../../../jwa/jwk/oct/octet-sequence.jsonwebkey.parameters.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
 import type { GeneralJsonWebEncryptionToken } from "../general.jsonwebencryption.token.ts";
