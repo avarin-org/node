@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest";
 
 import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonwebsignature.error.ts";
 import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
-import { JsonWebSignatureHeader } from "../../../header/jsonwebsignature.header.ts";
 import type { FlattenedJsonWebSignatureParameters } from "../flattened.jsonwebsignature.parameters.ts";
 import type { FlattenedJsonWebSignatureToken } from "../flattened.jsonwebsignature.token.ts";
 import { decode } from "./decode.ts";
@@ -247,63 +246,58 @@ describe("decode()", () => {
   const encodedProtectedSignature = Buffer.from("hRqmKz7sKWQZyNM1Kw9AgqPNOedszPvEADYmNFo8foA", "base64url");
   const encodedUnprotectedSignature = Buffer.from("iRxcRLDYSMrd3ZlYZ_tUXP8pRAShmoErGTo4sEsew3U", "base64url");
 
-  it.each(invalidTokens)(
-    "should throw when the provided Flattened JSON Web Signature Token is invalid.",
-    async (token) => {
-      const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-      await expect(decode(token)).rejects.toThrow(error);
-    },
-  );
+  it.each(invalidTokens)("should throw when the provided Flattened JSON Web Signature Token is invalid.", (token) => {
+    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
+    expect(() => decode(token)).toThrow(error);
+  });
 
   it.each(invalidTokenFormats)(
     "should throw when the provided Flattened JSON Web Signature Token has an invalid format.",
-    async (token) => {
+    (token) => {
       const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-      await expect(decode(token)).rejects.toThrow(error);
+      expect(() => decode(token)).toThrow(error);
     },
   );
 
-  it("should throw when there are repeated JSON Web Signature Header Parameters.", async () => {
+  it("should throw when there are repeated JSON Web Signature Header Parameters.", () => {
     const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
 
-    await expect(
+    expect(() =>
       decode({
         ...encodedProtectedAttachedToken,
         header: encodedProtectedHeader,
         protected: Buffer.from(JSON.stringify(encodedProtectedHeader), "utf8").toString("base64url"),
       }),
-    ).rejects.toThrow(error);
+    ).toThrow(error);
   });
 
-  it('should throw if the JOSE Header Parameter "crit" is present in the Unprotected Header.', async () => {
+  it('should throw if the JOSE Header Parameter "crit" is present in the Unprotected Header.', () => {
     const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
 
-    await expect(
+    expect(() =>
       decode({
         ...encodedProtectedAttachedToken,
         header: { crit: ["foo"], foo: "foo" },
         protected: Buffer.from(JSON.stringify({ alg: "HS256" }), "utf8").toString("base64url"),
       }),
-    ).rejects.toThrow(error);
+    ).toThrow(error);
   });
 
-  it('should throw if the JOSE Header Parameter "b64" is present in the Unprotected Header.', async () => {
+  it('should throw if the JOSE Header Parameter "b64" is present in the Unprotected Header.', () => {
     const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
 
-    await expect(
+    expect(() =>
       decode({
         ...encodedProtectedAttachedToken,
         header: { b64: false },
         protected: Buffer.from(JSON.stringify({ alg: "HS256" }), "utf8").toString("base64url"),
       }),
-    ).rejects.toThrow(error);
+    ).toThrow(error);
   });
 
-  it("should return the Flattened JSON Web Signature Parameters from a Protected Attached Unencoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(
-      decode(unencodedProtectedAttachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader(unencodedProtectedHeader as JsonWebSignatureHeaderParameters),
+  it("should return the Flattened JSON Web Signature Parameters from a Protected Attached Unencoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(unencodedProtectedAttachedTokenWithoutDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: unencodedProtectedHeader as JsonWebSignatureHeaderParameters,
       payload: payloadWithoutDot,
       protectedHeader: unencodedProtectedHeader,
       signature: unencodedSignatureWithoutDot,
@@ -311,224 +305,180 @@ describe("decode()", () => {
     });
   });
 
-  it('should return the Flattened JSON Web Signature Parameters from a Protected Attached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedProtectedAttachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader(encodedProtectedHeader as JsonWebSignatureHeaderParameters),
-      payload: expect.not.stringContaining(payloadWithoutDot.toString("utf8")),
-      protectedHeader: encodedProtectedHeader,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should throw when providing an Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot.", async () => {
-    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-    await expect(decode(badUnencodedUnprotectedAttachedTokenWithoutDot)).rejects.toThrow(error);
-  });
-
-  it('should return the Flattened JSON Web Signature Parameters from an Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedUnprotectedAttachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
-      payload: expect.not.stringContaining(payloadWithoutDot.toString("utf8")),
-      protectedHeader: null,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader: { ...encodedProtectedHeader, ...unprotectedHeader },
-    });
-  });
-
-  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(
-      decode(unencodedFullAttachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...unencodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
-      payload: payloadWithoutDot,
-      protectedHeader: unencodedProtectedHeader,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader,
-    });
-  });
-
-  it('should throw when providing a Protected and Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', async () => {
-    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-    await expect(decode(badUnencodedFullAttachedTokenWithoutDot)).rejects.toThrow(error);
-  });
-
-  it('should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedFullAttachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
-      payload: expect.not.stringContaining(payloadWithoutDot.toString("utf8")),
-      protectedHeader: encodedProtectedHeader,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader,
-    });
-  });
-
-  it("should return the Flattened JSON Web Signature Parameters from a Protected Detached Unencoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(
-      decode(unencodedProtectedDetachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader(unencodedProtectedHeader as JsonWebSignatureHeaderParameters),
-      payload: null,
-      protectedHeader: unencodedProtectedHeader,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader: null,
-    });
-  });
-
-  it('should return the Flattened JSON Web Signature Parameters from a Protected Detached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedProtectedDetachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader(encodedProtectedHeader as JsonWebSignatureHeaderParameters),
-      payload: null,
-      protectedHeader: encodedProtectedHeader,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader: null,
-    });
-  });
-
-  it('should throw when providing an Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', async () => {
-    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-    await expect(decode(badUnencodedUnprotectedDetachedTokenWithoutDot)).rejects.toThrow(error);
-  });
-
-  it('should return the Flattened JSON Web Signature Parameters from an Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedUnprotectedDetachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
-      payload: null,
-      protectedHeader: null,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader: { ...encodedProtectedHeader, ...unprotectedHeader },
-    });
-  });
-
-  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(
-      decode(unencodedFullDetachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...unencodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
-      payload: null,
-      protectedHeader: unencodedProtectedHeader,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader,
-    });
-  });
-
-  it('should throw when providing a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', async () => {
-    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-    await expect(decode(badUnencodedFullDetachedTokenWithoutDot)).rejects.toThrow(error);
-  });
-
-  it('should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedFullDetachedTokenWithoutDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
-      payload: null,
-      protectedHeader: encodedProtectedHeader,
-      signature: unencodedSignatureWithoutDot,
-      unprotectedHeader,
-    });
-  });
-
-  it("should return the Flattened JSON Web Signature Parameters from a Protected Detached Unencoded Flattened JSON Web Signature Token with a dot.", async () => {
-    await expect(
-      decode(unencodedProtectedDetachedTokenWithDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader(unencodedProtectedHeader as JsonWebSignatureHeaderParameters),
-      payload: null,
-      protectedHeader: unencodedProtectedHeader,
-      signature: unencodedSignatureWithDot,
-      unprotectedHeader: null,
-    });
-  });
-
-  it('should return the Flattened JSON Web Signature Parameters from a Protected Detached Unencoded Flattened JSON Web Signature Token with a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedProtectedDetachedTokenWithDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader(encodedProtectedHeader as JsonWebSignatureHeaderParameters),
-      payload: null,
-      protectedHeader: encodedProtectedHeader,
-      signature: unencodedSignatureWithDot,
-      unprotectedHeader: null,
-    });
-  });
-
-  it('should throw when providing an Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', async () => {
-    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-    await expect(decode(badUnencodedUnprotectedDetachedTokenWithDot)).rejects.toThrow(error);
-  });
-
-  it('should return the Flattened JSON Web Signature Parameters from an Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedUnprotectedDetachedTokenWithDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
-      payload: null,
-      protectedHeader: null,
-      signature: unencodedSignatureWithDot,
-      unprotectedHeader: { ...encodedProtectedHeader, ...unprotectedHeader },
-    });
-  });
-
-  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot.", async () => {
-    await expect(decode(unencodedFullDetachedTokenWithDot)).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>(
+  it('should return the Flattened JSON Web Signature Parameters from a Protected Attached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(decode(missingUnencodedProtectedAttachedTokenWithoutDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>(
       {
-        header: new JsonWebSignatureHeader({
-          ...unencodedProtectedHeader,
-          ...unprotectedHeader,
-        } as JsonWebSignatureHeaderParameters),
-        payload: null,
-        protectedHeader: unencodedProtectedHeader,
-        signature: unencodedSignatureWithDot,
-        unprotectedHeader,
+        joseHeader: encodedProtectedHeader as JsonWebSignatureHeaderParameters,
+        payload: expect.not.stringContaining(payloadWithoutDot.toString("utf8")),
+        protectedHeader: encodedProtectedHeader,
+        signature: unencodedSignatureWithoutDot,
+        unprotectedHeader: null,
       },
     );
   });
 
-  it('should throw when providing a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', async () => {
+  it("should throw when providing an Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot.", () => {
     const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-    await expect(decode(badUnencodedFullDetachedTokenWithDot)).rejects.toThrow(error);
+    expect(() => decode(badUnencodedUnprotectedAttachedTokenWithoutDot)).toThrow(error);
   });
 
-  it('should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot that is missing the JOSE Header Parameter "b64".', async () => {
-    await expect(
-      decode(missingUnencodedFullDetachedTokenWithDot),
-    ).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
+  it('should return the Flattened JSON Web Signature Parameters from an Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(
+      decode(missingUnencodedUnprotectedAttachedTokenWithoutDot),
+    ).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
+      payload: expect.not.stringContaining(payloadWithoutDot.toString("utf8")),
+      protectedHeader: null,
+      signature: unencodedSignatureWithoutDot,
+      unprotectedHeader: { ...encodedProtectedHeader, ...unprotectedHeader },
+    });
+  });
+
+  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(unencodedFullAttachedTokenWithoutDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...unencodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
+      payload: payloadWithoutDot,
+      protectedHeader: unencodedProtectedHeader,
+      signature: unencodedSignatureWithoutDot,
+      unprotectedHeader,
+    });
+  });
+
+  it('should throw when providing a Protected and Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', () => {
+    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
+    expect(() => decode(badUnencodedFullAttachedTokenWithoutDot)).toThrow(error);
+  });
+
+  it('should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Attached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(decode(missingUnencodedFullAttachedTokenWithoutDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
+      payload: expect.not.stringContaining(payloadWithoutDot.toString("utf8")),
+      protectedHeader: encodedProtectedHeader,
+      signature: unencodedSignatureWithoutDot,
+      unprotectedHeader,
+    });
+  });
+
+  it("should return the Flattened JSON Web Signature Parameters from a Protected Detached Unencoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(unencodedProtectedDetachedTokenWithoutDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: unencodedProtectedHeader as JsonWebSignatureHeaderParameters,
+      payload: null,
+      protectedHeader: unencodedProtectedHeader,
+      signature: unencodedSignatureWithoutDot,
+      unprotectedHeader: null,
+    });
+  });
+
+  it('should return the Flattened JSON Web Signature Parameters from a Protected Detached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(decode(missingUnencodedProtectedDetachedTokenWithoutDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>(
+      {
+        joseHeader: encodedProtectedHeader as JsonWebSignatureHeaderParameters,
+        payload: null,
+        protectedHeader: encodedProtectedHeader,
+        signature: unencodedSignatureWithoutDot,
+        unprotectedHeader: null,
+      },
+    );
+  });
+
+  it('should throw when providing an Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', () => {
+    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
+    expect(() => decode(badUnencodedUnprotectedDetachedTokenWithoutDot)).toThrow(error);
+  });
+
+  it('should return the Flattened JSON Web Signature Parameters from an Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(
+      decode(missingUnencodedUnprotectedDetachedTokenWithoutDot),
+    ).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
+      payload: null,
+      protectedHeader: null,
+      signature: unencodedSignatureWithoutDot,
+      unprotectedHeader: { ...encodedProtectedHeader, ...unprotectedHeader },
+    });
+  });
+
+  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(unencodedFullDetachedTokenWithoutDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...unencodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
+      payload: null,
+      protectedHeader: unencodedProtectedHeader,
+      signature: unencodedSignatureWithoutDot,
+      unprotectedHeader,
+    });
+  });
+
+  it('should throw when providing a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', () => {
+    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
+    expect(() => decode(badUnencodedFullDetachedTokenWithoutDot)).toThrow(error);
+  });
+
+  it('should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token without a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(decode(missingUnencodedFullDetachedTokenWithoutDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
+      payload: null,
+      protectedHeader: encodedProtectedHeader,
+      signature: unencodedSignatureWithoutDot,
+      unprotectedHeader,
+    });
+  });
+
+  it("should return the Flattened JSON Web Signature Parameters from a Protected Detached Unencoded Flattened JSON Web Signature Token with a dot.", () => {
+    expect(decode(unencodedProtectedDetachedTokenWithDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: unencodedProtectedHeader as JsonWebSignatureHeaderParameters,
+      payload: null,
+      protectedHeader: unencodedProtectedHeader,
+      signature: unencodedSignatureWithDot,
+      unprotectedHeader: null,
+    });
+  });
+
+  it('should return the Flattened JSON Web Signature Parameters from a Protected Detached Unencoded Flattened JSON Web Signature Token with a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(decode(missingUnencodedProtectedDetachedTokenWithDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: encodedProtectedHeader as JsonWebSignatureHeaderParameters,
+      payload: null,
+      protectedHeader: encodedProtectedHeader,
+      signature: unencodedSignatureWithDot,
+      unprotectedHeader: null,
+    });
+  });
+
+  it('should throw when providing an Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', () => {
+    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
+    expect(() => decode(badUnencodedUnprotectedDetachedTokenWithDot)).toThrow(error);
+  });
+
+  it('should return the Flattened JSON Web Signature Parameters from an Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(decode(missingUnencodedUnprotectedDetachedTokenWithDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
+      payload: null,
+      protectedHeader: null,
+      signature: unencodedSignatureWithDot,
+      unprotectedHeader: { ...encodedProtectedHeader, ...unprotectedHeader },
+    });
+  });
+
+  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot.", () => {
+    expect(decode(unencodedFullDetachedTokenWithDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: {
+        ...unencodedProtectedHeader,
         ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
+      } as JsonWebSignatureHeaderParameters,
+      payload: null,
+      protectedHeader: unencodedProtectedHeader,
+      signature: unencodedSignatureWithDot,
+      unprotectedHeader,
+    });
+  });
+
+  it('should throw when providing a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot where the JOSE Header Parameter "b64" is in the Unprotected Header.', () => {
+    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
+    expect(() => decode(badUnencodedFullDetachedTokenWithDot)).toThrow(error);
+  });
+
+  it('should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Unencoded Flattened JSON Web Signature Token with a dot that is missing the JOSE Header Parameter "b64".', () => {
+    expect(decode(missingUnencodedFullDetachedTokenWithDot)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
       payload: null,
       protectedHeader: encodedProtectedHeader,
       signature: unencodedSignatureWithDot,
@@ -536,9 +486,9 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the Flattened JSON Web Signature Parameters from a Protected Attached Encoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(decode(encodedProtectedAttachedToken)).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader(encodedProtectedHeader as JsonWebSignatureHeaderParameters),
+  it("should return the Flattened JSON Web Signature Parameters from a Protected Attached Encoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(encodedProtectedAttachedToken)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: encodedProtectedHeader as JsonWebSignatureHeaderParameters,
       payload: payloadWithoutDot,
       protectedHeader: encodedProtectedHeader,
       signature: encodedProtectedSignature,
@@ -546,12 +496,9 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the Flattened JSON Web Signature Parameters from an Unprotected Attached Encoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(decode(encodedUnprotectedAttachedToken)).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
+  it("should return the Flattened JSON Web Signature Parameters from an Unprotected Attached Encoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(encodedUnprotectedAttachedToken)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
       payload: payloadWithoutDot,
       protectedHeader: null,
       signature: encodedUnprotectedSignature,
@@ -559,12 +506,9 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Attached Encoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(decode(encodedFullAttachedToken)).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
+  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Attached Encoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(encodedFullAttachedToken)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
       payload: payloadWithoutDot,
       protectedHeader: encodedProtectedHeader,
       signature: encodedProtectedSignature,
@@ -572,9 +516,9 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the Flattened JSON Web Signature Parameters from a Protected Detached Encoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(decode(encodedProtectedDetachedToken)).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader(encodedProtectedHeader as JsonWebSignatureHeaderParameters),
+  it("should return the Flattened JSON Web Signature Parameters from a Protected Detached Encoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(encodedProtectedDetachedToken)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: encodedProtectedHeader as JsonWebSignatureHeaderParameters,
       payload: null,
       protectedHeader: encodedProtectedHeader,
       signature: encodedProtectedSignature,
@@ -582,12 +526,9 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the Flattened JSON Web Signature Parameters from an Unprotected Detached Encoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(decode(encodedUnprotectedDetachedToken)).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
+  it("should return the Flattened JSON Web Signature Parameters from an Unprotected Detached Encoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(encodedUnprotectedDetachedToken)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
       payload: null,
       protectedHeader: null,
       signature: encodedUnprotectedSignature,
@@ -595,12 +536,9 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Encoded Flattened JSON Web Signature Token without a dot.", async () => {
-    await expect(decode(encodedFullDetachedToken)).resolves.toStrictEqual<FlattenedJsonWebSignatureParameters>({
-      header: new JsonWebSignatureHeader({
-        ...encodedProtectedHeader,
-        ...unprotectedHeader,
-      } as JsonWebSignatureHeaderParameters),
+  it("should return the Flattened JSON Web Signature Parameters from a Protected and Unprotected Detached Encoded Flattened JSON Web Signature Token without a dot.", () => {
+    expect(decode(encodedFullDetachedToken)).toStrictEqual<FlattenedJsonWebSignatureParameters>({
+      joseHeader: { ...encodedProtectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters,
       payload: null,
       protectedHeader: encodedProtectedHeader,
       signature: encodedProtectedSignature,

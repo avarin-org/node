@@ -16,5 +16,5 @@ export interface CompactJsonWebSignature {
   /**
    * JSON Web Signature Protected Header.
    */
-  readonly protectedHeader: JsonWebSignatureHeader;
+  readonly header: JsonWebSignatureHeader;
 }

@@ -6,6 +6,7 @@ import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonweb
 import type { DigitalSignatureAlgorithm } from "../../../../jwa/jws/digital-signature-algorithm.type.ts";
 import { DIGITAL_SIGNATURE_BACKEND_REGISTRY } from "../../../../jwa/jws/digital-signature.backend.registry.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
+import { header as jwsHeader } from "../../../header/index.ts";
 import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
 import { decode } from "../decode/decode.ts";
 import type { GeneralJsonWebSignatureParametersSignature } from "../general.jsonwebsignature.parameters.ts";
@@ -95,6 +96,8 @@ function validateExpectedAlgorithms(
  * @param token General JSON Web Signature Token.
  * @param options General JSON Web Signature deserialize options.
  * @returns General JSON Web Signature.
+ * @throws {InvalidJoseHeaderError} The JSON Web Signature Header of the provided General JSON Web Signature Token is
+ *   invalid.
  * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the General JSON Web
  *   Signature Token.
  * @throws {InvalidJsonWebSignatureError} Failed to deserialize the General JSON Web Signature.
@@ -104,7 +107,7 @@ export async function deserialize(
   token: GeneralJsonWebSignatureToken,
   options: DeserializeOptions = {},
 ): Promise<GeneralJsonWebSignature> {
-  let { payload, signatures } = await decode(token);
+  let { payload, signatures } = decode(token);
 
   validateOptions(options, signatures);
   validateDetachedPayload(payload, options.detachedPayload);
@@ -116,8 +119,10 @@ export async function deserialize(
   for (let i = 0; i < signatures.length; i += 1) {
     headersPromises.push(
       (async (): Promise<GeneralJsonWebSignatureParsedHeaders> => {
-        const { header, protectedHeader, signature, unprotectedHeader } = signatures[i]!;
+        const { joseHeader, protectedHeader, signature, unprotectedHeader } = signatures[i]!;
         const signatureOptions = options.signatures?.[i] ?? {};
+
+        const header = await jwsHeader.create(joseHeader);
 
         if (signatureOptions.jsonWebKey === null || signatureOptions.jsonWebKey instanceof JsonWebKey) {
           header.jsonWebKey = signatureOptions.jsonWebKey;

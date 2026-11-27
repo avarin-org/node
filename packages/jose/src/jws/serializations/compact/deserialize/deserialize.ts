@@ -7,6 +7,7 @@ import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonweb
 import type { DigitalSignatureAlgorithm } from "../../../../jwa/jws/digital-signature-algorithm.type.ts";
 import { DIGITAL_SIGNATURE_BACKEND_REGISTRY } from "../../../../jwa/jws/digital-signature.backend.registry.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
+import { header as jwsHeader } from "../../../header/index.ts";
 import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
 import type { CompactJsonWebSignature } from "../compact.jsonwebsignature.ts";
 import { decode } from "../decode/decode.ts";
@@ -70,6 +71,8 @@ function validateExpectedAlgorithms(
  * @param token Compact JSON Web Signature Token.
  * @param options Compact JSON Web Signature deserialize options.
  * @returns Compact JSON Web Signature.
+ * @throws {InvalidJoseHeaderError} The JSON Web Signature Header of the provided Compact JSON Web Signature Token is
+ *   invalid.
  * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the Compact JSON Web
  *   Signature Token.
  * @throws {InvalidJsonWebSignatureError} Failed to deserialize the Compact JSON Web Signature.
@@ -78,15 +81,16 @@ function validateExpectedAlgorithms(
 export async function deserialize(token: string, options: DeserializeOptions = {}): Promise<CompactJsonWebSignature> {
   validateOptions(options);
 
-  let { payload, protectedHeader, signature } = await decode(token);
+  let { payload, joseHeader, signature } = decode(token);
+  const header = await jwsHeader.create(joseHeader);
 
   validateDetachedPayload(payload, options.detachedPayload);
 
   if (options.jsonWebKey === null || options.jsonWebKey instanceof JsonWebKey) {
-    protectedHeader.jsonWebKey = options.jsonWebKey;
+    header.jsonWebKey = options.jsonWebKey;
   }
 
-  const { digitalSignatureBackend, jsonWebKey, parameters } = protectedHeader;
+  const { digitalSignatureBackend, jsonWebKey, parameters } = header;
 
   validateExpectedAlgorithms(options.expectedDigitalSignatureAlgorithms, parameters);
 
@@ -102,5 +106,5 @@ export async function deserialize(token: string, options: DeserializeOptions = {
 
   await digitalSignatureBackend.verify(signature, message, jsonWebKey);
 
-  return { payload, protectedHeader };
+  return { header, payload };
 }

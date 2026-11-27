@@ -1,7 +1,26 @@
 import type { Buffer } from "node:buffer";
 
 import type { JsonWebSignatureHeaderParameters } from "../../header/jsonwebsignature.header.parameters.ts";
-import type { JsonWebSignatureHeader } from "../../header/jsonwebsignature.header.ts";
+
+/**
+ * General JSON Web Signature Parsed Headers.
+ */
+export interface GeneralJsonWebSignatureParsedHeadersParameters {
+  /**
+   * JSON Web Signature Protected Header.
+   */
+  readonly protectedHeader: Partial<JsonWebSignatureHeaderParameters> | null;
+
+  /**
+   * JSON Web Signature Unprotected Header.
+   */
+  readonly unprotectedHeader: Partial<JsonWebSignatureHeaderParameters> | null;
+
+  /**
+   * JSON Web Signature Header.
+   */
+  readonly joseHeader: JsonWebSignatureHeaderParameters;
+}
 
 /**
  * General JSON Web Signature Parameters Signature.
@@ -20,7 +39,7 @@ export interface GeneralJsonWebSignatureParametersSignature {
   /**
    * JSON Web Signature Header.
    */
-  readonly header: JsonWebSignatureHeader;
+  readonly joseHeader: JsonWebSignatureHeaderParameters;
 
   /**
    * JSON Web Signature Signature.

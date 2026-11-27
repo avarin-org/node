@@ -6,6 +6,7 @@ import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonweb
 import type { DigitalSignatureAlgorithm } from "../../../../jwa/jws/digital-signature-algorithm.type.ts";
 import { DIGITAL_SIGNATURE_BACKEND_REGISTRY } from "../../../../jwa/jws/digital-signature.backend.registry.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
+import { header as jwsHeader } from "../../../header/index.ts";
 import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
 import type { DeserializeOptions } from "../../compact/deserialize/deserialize.options.ts";
 import { decode } from "../decode/decode.ts";
@@ -70,6 +71,8 @@ function validateExpectedAlgorithms(
  * @param token Flattened JSON Web Signature Token.
  * @param options Flattened JSON Web Signature deserialize options.
  * @returns Flattened JSON Web Signature.
+ * @throws {InvalidJoseHeaderError} The JSON Web Signature Header of the provided Flattened JSON Web Signature Token is
+ *   invalid.
  * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the Flattened JSON Web
  *   Signature Token.
  * @throws {InvalidJsonWebSignatureError} Failed to deserialize the Flattened JSON Web Signature.
@@ -81,9 +84,11 @@ export async function deserialize(
 ): Promise<FlattenedJsonWebSignature> {
   validateOptions(options);
 
-  let { header, payload, protectedHeader, signature, unprotectedHeader } = await decode(token);
+  let { joseHeader, payload, protectedHeader, signature, unprotectedHeader } = decode(token);
 
   validateDetachedPayload(payload, options.detachedPayload);
+
+  const header = await jwsHeader.create(joseHeader);
 
   if (options.jsonWebKey === null || options.jsonWebKey instanceof JsonWebKey) {
     header.jsonWebKey = options.jsonWebKey;

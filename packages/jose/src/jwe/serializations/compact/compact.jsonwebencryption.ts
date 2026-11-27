@@ -16,5 +16,5 @@ export interface CompactJsonWebEncryption {
   /**
    * JSON Web Encryption Protected Header.
    */
-  readonly protectedHeader: JsonWebEncryptionHeader;
+  readonly header: JsonWebEncryptionHeader;
 }

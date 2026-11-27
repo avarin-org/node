@@ -11,6 +11,7 @@ import { COMPRESSION_BACKEND_REGISTRY } from "../../../../jwa/jwe/zip/compressio
 import { CompressionBackend } from "../../../../jwa/jwe/zip/compression.backend.ts";
 import type { DigitalSignatureAlgorithm } from "../../../../jwa/jws/digital-signature-algorithm.type.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
+import { header as jweHeader } from "../../../header/index.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
 import type { CompactJsonWebEncryption } from "../compact.jsonwebencryption.ts";
 import { decode } from "../decode/decode.ts";
@@ -113,6 +114,8 @@ function validateExpectedAlgorithms(
  * @param token Compact JSON Web Encryption Token.
  * @param options Compact JSON Web Encryption deserialize options.
  * @returns Compact JSON Web Encryption.
+ * @throws {InvalidJoseHeaderError} The JSON Web Encryption Header of the provided Compact JSON Web Encryption Token is
+ *   invalid.
  * @throws {InvalidJsonWebEncryptionError} Failed to deserialize the Compact JSON Web Encryption.
  * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the Compact JSON Web
  *   Encryption Token.
@@ -121,22 +124,18 @@ function validateExpectedAlgorithms(
 export async function deserialize(token: string, options: DeserializeOptions = {}): Promise<CompactJsonWebEncryption> {
   validateOptions(options);
 
-  let {
-    additionalAuthenticatedData,
-    authenticationTag,
-    encryptedKey,
-    initializationVector,
-    protectedHeader,
-    ciphertext,
-  } = await decode(token);
+  let { additionalAuthenticatedData, authenticationTag, encryptedKey, initializationVector, joseHeader, ciphertext } =
+    decode(token);
 
   validateDetachedCiphertext(ciphertext, options.detachedCiphertext);
 
+  const header = await jweHeader.create(joseHeader);
+
   if (options.jsonWebKey instanceof JsonWebKey) {
-    protectedHeader.jsonWebKey = options.jsonWebKey;
+    header.jsonWebKey = options.jsonWebKey;
   }
 
-  const { compressionBackend, contentEncryptionBackend, keyManagementBackend, parameters } = protectedHeader;
+  const { compressionBackend, contentEncryptionBackend, keyManagementBackend, parameters } = header;
 
   validateExpectedAlgorithms(
     options.expectedKeyManagementAlgorithms,
@@ -147,11 +146,7 @@ export async function deserialize(token: string, options: DeserializeOptions = {
 
   ciphertext ??= options.detachedCiphertext!;
 
-  const contentEncryptionKey = await keyManagementBackend.unwrap(
-    encryptedKey,
-    protectedHeader.jsonWebKey!,
-    protectedHeader,
-  );
+  const contentEncryptionKey = await keyManagementBackend.unwrap(encryptedKey, header.jsonWebKey!, header);
 
   let plaintext = await contentEncryptionBackend.decrypt(
     ciphertext,
@@ -165,5 +160,5 @@ export async function deserialize(token: string, options: DeserializeOptions = {
     plaintext = await compressionBackend.decompress(plaintext);
   }
 
-  return { plaintext, protectedHeader };
+  return { header, plaintext };
 }

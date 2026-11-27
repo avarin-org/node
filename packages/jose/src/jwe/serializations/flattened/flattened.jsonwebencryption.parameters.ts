@@ -1,7 +1,6 @@
 import type { Buffer } from "node:buffer";
 
 import type { JsonWebEncryptionHeaderParameters } from "../../header/jsonwebencryption.header.parameters.ts";
-import type { JsonWebEncryptionHeader } from "../../header/jsonwebencryption.header.ts";
 
 /**
  * Flattened JSON Web Encryption Parameters.
@@ -27,7 +26,7 @@ export interface FlattenedJsonWebEncryptionParameters {
   /**
    * JSON Web Encryption Header.
    */
-  readonly header: JsonWebEncryptionHeader;
+  readonly joseHeader: JsonWebEncryptionHeaderParameters;
 
   /**
    * JSON Web Encryption Encrypted Key.

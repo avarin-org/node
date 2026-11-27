@@ -2,7 +2,6 @@ import { Buffer } from "node:buffer";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { InvalidJsonWebTokenClaimsError } from "../../../errors/invalid-jsonwebtoken-claims.error.ts";
 import type { JsonWebTokenClaimsParameters } from "../jsonwebtoken.claims.parameters.ts";
 import { JsonWebTokenClaims } from "../jsonwebtoken.claims.ts";
 import { create } from "./create.ts";
@@ -78,7 +77,7 @@ describe("create()", () => {
   it.each(invalidParametersWithConstructor)(
     "should throw when the provided JSON Web Token Claims Parameters is invalid with a custom JSON Web Token Claims Constructor.",
     async (_parameters) => {
-      const error = new InvalidJsonWebTokenClaimsError("The provided JSON Web Token Claims Parameters is invalid.");
+      const error = new TypeError("The provided JSON Web Token Claims Parameters is invalid.");
       await expect(create(CustomJsonWebTokenClaims, _parameters)).rejects.toThrow(error);
     },
   );
@@ -86,7 +85,7 @@ describe("create()", () => {
   it.each(invalidAdditionalParameters)(
     "should throw when the provided Additional JSON Web Token Claims Parameters is invalid with a custom JSON Web Token Claims Constructor.",
     async (_additionalParameters) => {
-      const error = new InvalidJsonWebTokenClaimsError("The provided JSON Web Token Claims Parameters is invalid.");
+      const error = new TypeError("The provided JSON Web Token Claims Parameters is invalid.");
       await expect(create(CustomJsonWebTokenClaims, parameters, _additionalParameters)).rejects.toThrow(error);
     },
   );
@@ -120,7 +119,7 @@ describe("create()", () => {
   it.each(invalidParameters)(
     "should throw when the provided JSON Web Token Claims Parameters is invalid.",
     async (_parameters) => {
-      const error = new InvalidJsonWebTokenClaimsError("The provided JSON Web Token Claims Parameters is invalid.");
+      const error = new TypeError("The provided JSON Web Token Claims Parameters is invalid.");
       await expect(create(_parameters)).rejects.toThrow(error);
     },
   );
@@ -133,7 +132,7 @@ describe("create()", () => {
   it.each(invalidAdditionalParameters)(
     "should throw when the provided Additional JSON Web Token Claims Parameters is invalid.",
     async (_additionalParameters) => {
-      const error = new InvalidJsonWebTokenClaimsError("The provided JSON Web Token Claims Parameters is invalid.");
+      const error = new TypeError("The provided JSON Web Token Claims Parameters is invalid.");
       await expect(create(parameters, _additionalParameters)).rejects.toThrow(error);
     },
   );

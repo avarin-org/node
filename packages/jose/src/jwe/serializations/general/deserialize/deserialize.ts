@@ -11,6 +11,7 @@ import type { CompressionAlgorithm } from "../../../../jwa/jwe/zip/compression-a
 import { COMPRESSION_BACKEND_REGISTRY } from "../../../../jwa/jwe/zip/compression.backend.registry.ts";
 import { CompressionBackend } from "../../../../jwa/jwe/zip/compression.backend.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
+import { header as jweHeader } from "../../../header/index.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
 import { decode } from "../decode/decode.ts";
 import type { GeneralJsonWebEncryptionParametersRecipient } from "../general.jsonwebencryption.parameters.ts";
@@ -132,6 +133,8 @@ function validateExpectedAlgorithms(
  * @param token General JSON Web Encryption Token.
  * @param options General JSON Web Encryption deserialize options.
  * @returns General JSON Web Encryption.
+ * @throws {InvalidJoseHeaderError} The JSON Web Encryption Header of the provided General JSON Web Encryption Token is
+ *   invalid.
  * @throws {InvalidJsonWebEncryptionError} Failed to deserialize the General JSON Web Encryption.
  * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the General JSON Web
  *   Signature Token.
@@ -149,7 +152,7 @@ export async function deserialize(
     protectedHeader,
     recipients,
     unprotectedHeader,
-  } = await decode(token);
+  } = decode(token);
 
   validateOptions(options, recipients);
   validateDetachedCiphertext(ciphertext, options.detachedCiphertext);
@@ -172,7 +175,8 @@ export async function deserialize(
   for (let i = 0; i < recipients.length; i += 1) {
     recipientsPromises.push(
       (async (): Promise<GeneralJsonWebEncryptionRecipient> => {
-        const { encryptedKey, header, recipientUnprotectedHeader } = recipients[i]!;
+        const { encryptedKey, joseHeader, recipientUnprotectedHeader } = recipients[i]!;
+        const header = await jweHeader.create(joseHeader);
 
         const recipientOptions = options.recipients?.[i] ?? {};
 

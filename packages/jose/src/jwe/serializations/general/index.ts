@@ -18,6 +18,8 @@ interface GeneralJsonWebEncryptionMethods {
    * @param token General JSON Web Encryption Token.
    * @param options General JSON Web Encryption deserialize options.
    * @returns General JSON Web Encryption.
+   * @throws {InvalidJoseHeaderError} The JSON Web Encryption Header of the provided General JSON Web Encryption Token
+   *   is invalid.
    * @throws {InvalidJsonWebEncryptionError} Failed to deserialize the General JSON Web Encryption.
    * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the General JSON Web
    *   Signature Token.

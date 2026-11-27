@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonwebsignature.error.ts";
 import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
-import { JsonWebSignatureHeader } from "../../../header/jsonwebsignature.header.ts";
 import type { CompactJsonWebSignatureParameters } from "../compact.jsonwebsignature.parameters.ts";
 import { decode } from "./decode.ts";
 
@@ -31,7 +30,7 @@ describe("decode()", () => {
     ".eyJpYXQiOiAxNzIzMDEwNDU1LCAic3ViIjogIjA3OEJXRERYYXNkY2c4In0.hRqmKz7sKWQZyNM1Kw9AgqPNOedszPvEADYmNFo8foA";
 
   const invalidHeaderToken =
-    "e30.eyJpYXQiOiAxNzIzMDEwNDU1LCAic3ViIjogIjA3OEJXRERYYXNkY2c4In0.hRqmKz7sKWQZyNM1Kw9AgqPNOedszPvEADYmNFo8foA";
+    "ew.eyJpYXQiOiAxNzIzMDEwNDU1LCAic3ViIjogIjA3OEJXRERYYXNkY2c4In0.hRqmKz7sKWQZyNM1Kw9AgqPNOedszPvEADYmNFo8foA";
 
   const unencodedAttachedTokenWithoutDot =
     "eyJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19." +
@@ -60,68 +59,65 @@ describe("decode()", () => {
   const unencodedSignatureWithDot = Buffer.from("A5dxf2s96_n5FLueVuW1Z_vh161FwXZC4YLPff6dmDY", "base64url");
   const encodedSignature = Buffer.from("hRqmKz7sKWQZyNM1Kw9AgqPNOedszPvEADYmNFo8foA", "base64url");
 
-  it.each(invalidTokens)(
-    "should throw when the provided Compact JSON Web Signature Token is invalid.",
-    async (token) => {
-      const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-      await expect(decode(token)).rejects.toThrow(error);
-    },
-  );
+  it.each(invalidTokens)("should throw when the provided Compact JSON Web Signature Token is invalid.", (token) => {
+    const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
+    expect(() => decode(token)).toThrow(error);
+  });
 
   it.each(invalidTokenFormats)(
     "should throw when the provided Compact JSON Web Signature Token has an invalid format.",
-    async (token) => {
+    (token) => {
       const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-      await expect(decode(token)).rejects.toThrow(error);
+      expect(() => decode(token)).toThrow(error);
     },
   );
 
-  it("should throw when failing to parse the Protected Header of the provided Compact JSON Web Signature Token.", async () => {
+  it("should throw when failing to parse the Protected Header of the provided Compact JSON Web Signature Token.", () => {
     const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-    await expect(decode(headerlessToken)).rejects.toThrow(error);
+    expect(() => decode(headerlessToken)).toThrow(error);
   });
 
-  it("should throw when the Protected Header of the provided Compact JSON Web Signature Token is invalid.", async () => {
+  it("should throw when the Protected Header of the provided Compact JSON Web Signature Token is invalid.", () => {
     const error = new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
-    await expect(decode(invalidHeaderToken)).rejects.toThrow(error);
+    expect(() => decode(invalidHeaderToken)).toThrow(error);
   });
 
-  it("should return the Compact JSON Web Signature Parameters from an Attached Unencoded Compact JSON Web Signature Token without a dot.", async () => {
-    await expect(decode(unencodedAttachedTokenWithoutDot)).resolves.toStrictEqual<CompactJsonWebSignatureParameters>({
+  it("should return the Compact JSON Web Signature Parameters from an Attached Unencoded Compact JSON Web Signature Token without a dot.", () => {
+    expect(decode(unencodedAttachedTokenWithoutDot)).toStrictEqual<CompactJsonWebSignatureParameters>({
+      joseHeader: unencodedProtectedHeader,
       payload: payloadWithoutDot,
-      protectedHeader: new JsonWebSignatureHeader(unencodedProtectedHeader),
       signature: unencodedSignatureWithoutDot,
     });
   });
 
-  it("should return the Compact JSON Web Signature Parameters from a Detached Unencoded Compact JSON Web Signature Token without a dot.", async () => {
-    await expect(decode(unencodedDetachedTokenWithoutDot)).resolves.toStrictEqual<CompactJsonWebSignatureParameters>({
+  it("should return the Compact JSON Web Signature Parameters from a Detached Unencoded Compact JSON Web Signature Token without a dot.", () => {
+    expect(decode(unencodedDetachedTokenWithoutDot)).toStrictEqual<CompactJsonWebSignatureParameters>({
+      joseHeader: unencodedProtectedHeader,
       payload: null,
-      protectedHeader: new JsonWebSignatureHeader(unencodedProtectedHeader),
       signature: unencodedSignatureWithoutDot,
     });
   });
 
-  it("should return the Compact JSON Web Signature Parameters from a Detached Unencoded Compact JSON Web Signature Token with a dot.", async () => {
-    await expect(decode(unencodedDetachedTokenWithDot)).resolves.toStrictEqual<CompactJsonWebSignatureParameters>({
+  it("should return the Compact JSON Web Signature Parameters from a Detached Unencoded Compact JSON Web Signature Token with a dot.", () => {
+    expect(decode(unencodedDetachedTokenWithDot)).toStrictEqual<CompactJsonWebSignatureParameters>({
+      joseHeader: unencodedProtectedHeader,
       payload: null,
-      protectedHeader: new JsonWebSignatureHeader(unencodedProtectedHeader),
       signature: unencodedSignatureWithDot,
     });
   });
 
-  it("should return the Compact JSON Web Signature Parameters from an Attached Encoded Compact JSON Web Signature Token.", async () => {
-    await expect(decode(encodedAttachedToken)).resolves.toStrictEqual<CompactJsonWebSignatureParameters>({
+  it("should return the Compact JSON Web Signature Parameters from an Attached Encoded Compact JSON Web Signature Token.", () => {
+    expect(decode(encodedAttachedToken)).toStrictEqual<CompactJsonWebSignatureParameters>({
+      joseHeader: encodedProtectedHeader,
       payload: payloadWithoutDot,
-      protectedHeader: new JsonWebSignatureHeader(encodedProtectedHeader),
       signature: encodedSignature,
     });
   });
 
-  it("should return the Compact JSON Web Signature Parameters from a Detached Encoded Compact JSON Web Signature Token.", async () => {
-    await expect(decode(encodedDetachedToken)).resolves.toStrictEqual<CompactJsonWebSignatureParameters>({
+  it("should return the Compact JSON Web Signature Parameters from a Detached Encoded Compact JSON Web Signature Token.", () => {
+    expect(decode(encodedDetachedToken)).toStrictEqual<CompactJsonWebSignatureParameters>({
+      joseHeader: encodedProtectedHeader,
       payload: null,
-      protectedHeader: new JsonWebSignatureHeader(encodedProtectedHeader),
       signature: encodedSignature,
     });
   });

@@ -6,9 +6,7 @@ import { Strings } from "@avarin/primitives/strings";
 
 import { InvalidJsonWebEncryptionError } from "../../../../errors/invalid-jsonwebencryption.error.ts";
 import { checkPartialJoseHeader } from "../../../../utils/check-partial-jose-header/check-partial-jose-header.ts";
-import { header } from "../../../header/index.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
-import type { JsonWebEncryptionHeader } from "../../../header/jsonwebencryption.header.ts";
 import type {
   GeneralJsonWebEncryptionParameters,
   GeneralJsonWebEncryptionParametersRecipient,
@@ -65,11 +63,11 @@ function isValidGeneralJsonWebEncryptionToken(token: GeneralJsonWebEncryptionTok
   return true;
 }
 
-async function getJoseHeader(
+function getJoseHeaderParameters(
   protectedHeader: Partial<JsonWebEncryptionHeaderParameters> | null | undefined,
   unprotectedHeader: Partial<JsonWebEncryptionHeaderParameters> | null | undefined,
   recipientUnprotectedHeader: Partial<JsonWebEncryptionHeaderParameters> | null | undefined,
-): Promise<JsonWebEncryptionHeader> {
+): JsonWebEncryptionHeaderParameters {
   const headerKeys = [
     ...Object.keys(protectedHeader ?? {}),
     ...Object.keys(unprotectedHeader ?? {}),
@@ -80,13 +78,11 @@ async function getJoseHeader(
     throw new TypeError("Cannot have repeated JSON Web Encryption Header Parameters.");
   }
 
-  const headerParameters = {
+  return {
     ...protectedHeader,
     ...unprotectedHeader,
     ...recipientUnprotectedHeader,
   } as JsonWebEncryptionHeaderParameters;
-
-  return await header.create(headerParameters);
 }
 
 /**
@@ -96,7 +92,7 @@ async function getJoseHeader(
  * @returns General JSON Web Encryption Parameters.
  * @throws {InvalidJsonWebEncryptionError} The provided JSON Web Encryption is invalid.
  */
-export async function decode(token: GeneralJsonWebEncryptionToken): Promise<GeneralJsonWebEncryptionParameters> {
+export function decode(token: GeneralJsonWebEncryptionToken): GeneralJsonWebEncryptionParameters {
   if (!Objects.isPlain(token) || !isValidGeneralJsonWebEncryptionToken(token)) {
     throw new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
   }
@@ -108,13 +104,11 @@ export async function decode(token: GeneralJsonWebEncryptionToken): Promise<Gene
       protectedHeader = JSON.parse(Buffer.from(token.protected, "base64url").toString("utf8"));
     }
 
-    const recipients = await Promise.all(
-      token.recipients.map<Promise<GeneralJsonWebEncryptionParametersRecipient>>(async (tokenRecipient) => ({
-        encryptedKey: Buffer.from(tokenRecipient.encrypted_key, "base64url"),
-        header: await getJoseHeader(protectedHeader, token.unprotected, tokenRecipient.header),
-        recipientUnprotectedHeader: tokenRecipient.header ?? null,
-      })),
-    );
+    const recipients = token.recipients.map<GeneralJsonWebEncryptionParametersRecipient>((tokenRecipient) => ({
+      encryptedKey: Buffer.from(tokenRecipient.encrypted_key, "base64url"),
+      joseHeader: getJoseHeaderParameters(protectedHeader, token.unprotected, tokenRecipient.header),
+      recipientUnprotectedHeader: tokenRecipient.header ?? null,
+    }));
 
     return {
       additionalAuthenticatedData:

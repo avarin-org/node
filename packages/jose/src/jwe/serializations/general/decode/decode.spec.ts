@@ -6,7 +6,6 @@ import { InvalidJsonWebEncryptionError } from "../../../../errors/invalid-jsonwe
 import type { OctetSequenceJsonWebKeyParameters } from "../../../../jwa/jwk/oct/octet-sequence.jsonwebkey.parameters.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
-import { JsonWebEncryptionHeader } from "../../../header/jsonwebencryption.header.ts";
 import type { GeneralJsonWebEncryptionParameters } from "../general.jsonwebencryption.parameters.ts";
 import type { GeneralJsonWebEncryptionToken } from "../general.jsonwebencryption.token.ts";
 import { decode } from "./decode.ts";
@@ -929,28 +928,25 @@ describe("decode()", () => {
     vi.resetAllMocks();
   });
 
-  it.each(invalidTokens)(
-    "should throw when the provided General JSON Web Encryption Token is invalid.",
-    async (token) => {
-      const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
-      await expect(decode(token)).rejects.toThrow(error);
-    },
-  );
+  it.each(invalidTokens)("should throw when the provided General JSON Web Encryption Token is invalid.", (token) => {
+    const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
+    expect(() => decode(token)).toThrow(error);
+  });
 
   it.each(invalidTokenFormats)(
     "should throw when the provided General JSON Web Encryption Token has an invalid format.",
-    async (token) => {
+    (token) => {
       const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
-      await expect(decode(token)).rejects.toThrow(error);
+      expect(() => decode(token)).toThrow(error);
     },
   );
 
   it.each(repeatedJoseHeaderParameters)(
     "should throw when there are repeated JSON Web Encryption Header Parameters.",
-    async (protectedHeader, unprotectedHeader, recipientUnprotectedHeader) => {
+    (protectedHeader, unprotectedHeader, recipientUnprotectedHeader) => {
       const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
 
-      await expect(
+      expect(() =>
         decode({
           ...uncompressedFullAttachedTokenNoAad,
           protected: Buffer.from(JSON.stringify(protectedHeader), "utf8").toString("base64url"),
@@ -962,14 +958,12 @@ describe("decode()", () => {
           ],
           unprotected: unprotectedHeader,
         }),
-      ).rejects.toThrow(error);
+      ).toThrow(error);
     },
   );
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedProtectedAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(uncompressedProtectedAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("pf7CC-iGb8R2ZstoWHErWw", "base64url"),
       ciphertext,
@@ -978,7 +972,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: null,
         },
       ],
@@ -986,10 +980,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedUnprotectedAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(uncompressedUnprotectedAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("wOere2l7R7PoakOvvvxFCg", "base64url"),
       ciphertext,
@@ -998,7 +990,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: null,
         },
       ],
@@ -1006,10 +998,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Recipient Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedRecipientAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Recipient Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(uncompressedRecipientAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("wOere2l7R7PoakOvvvxFCg", "base64url"),
       ciphertext,
@@ -1018,7 +1008,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algEncJkuKidHeader,
         },
       ],
@@ -1026,10 +1016,10 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Unprotected Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Unprotected Attached Token with no Additional Authenticated Data.", () => {
+    expect(
       decode(uncompressedProtectedAndUnprotectedAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("Mz-VPPyU4RlcuYv1IwIvzw", "base64url"),
       ciphertext,
@@ -1038,7 +1028,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: null,
         },
       ],
@@ -1046,10 +1036,10 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Recipient Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Recipient Attached Token with no Additional Authenticated Data.", () => {
+    expect(
       decode(uncompressedProtectedAndRecipientAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("Mz-VPPyU4RlcuYv1IwIvzw", "base64url"),
       ciphertext,
@@ -1058,7 +1048,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algJkuKidHeader,
         },
       ],
@@ -1066,10 +1056,10 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected and Recipient Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected and Recipient Attached Token with no Additional Authenticated Data.", () => {
+    expect(
       decode(uncompressedUnprotectedAndRecipientAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("wOere2l7R7PoakOvvvxFCg", "base64url"),
       ciphertext,
@@ -1078,7 +1068,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algJkuKidHeader,
         },
       ],
@@ -1086,30 +1076,26 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected, Unprotected and Recipient Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(decode(uncompressedFullAttachedTokenNoAad)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>(
-      {
-        additionalAuthenticatedData: null,
-        authenticationTag: Buffer.from("Mz-VPPyU4RlcuYv1IwIvzw", "base64url"),
-        ciphertext,
-        initializationVector,
-        protectedHeader: encHeader,
-        recipients: [
-          {
-            encryptedKey,
-            header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-            recipientUnprotectedHeader: algKidHeader,
-          },
-        ],
-        unprotectedHeader: jkuHeader,
-      },
-    );
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected, Unprotected and Recipient Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(uncompressedFullAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("Mz-VPPyU4RlcuYv1IwIvzw", "base64url"),
+      ciphertext,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algKidHeader,
+        },
+      ],
+      unprotectedHeader: jkuHeader,
+    });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedProtectedDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(uncompressedProtectedDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("pf7CC-iGb8R2ZstoWHErWw", "base64url"),
       ciphertext: null,
@@ -1118,7 +1104,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: null,
         },
       ],
@@ -1126,10 +1112,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedUnprotectedDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(uncompressedUnprotectedDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("wOere2l7R7PoakOvvvxFCg", "base64url"),
       ciphertext: null,
@@ -1138,7 +1122,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: null,
         },
       ],
@@ -1146,10 +1130,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Recipient Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedRecipientDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Recipient Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(uncompressedRecipientDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("wOere2l7R7PoakOvvvxFCg", "base64url"),
       ciphertext: null,
@@ -1158,7 +1140,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algEncJkuKidHeader,
         },
       ],
@@ -1166,10 +1148,10 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Unprotected Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Unprotected Detached Token with no Additional Authenticated Data.", () => {
+    expect(
       decode(uncompressedProtectedAndUnprotectedDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("Mz-VPPyU4RlcuYv1IwIvzw", "base64url"),
       ciphertext: null,
@@ -1178,7 +1160,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: null,
         },
       ],
@@ -1186,10 +1168,10 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Recipient Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Recipient Detached Token with no Additional Authenticated Data.", () => {
+    expect(
       decode(uncompressedProtectedAndRecipientDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("Mz-VPPyU4RlcuYv1IwIvzw", "base64url"),
       ciphertext: null,
@@ -1198,7 +1180,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algJkuKidHeader,
         },
       ],
@@ -1206,10 +1188,10 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected and Recipient Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected and Recipient Detached Token with no Additional Authenticated Data.", () => {
+    expect(
       decode(uncompressedUnprotectedAndRecipientDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData: null,
       authenticationTag: Buffer.from("wOere2l7R7PoakOvvvxFCg", "base64url"),
       ciphertext: null,
@@ -1218,7 +1200,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algJkuKidHeader,
         },
       ],
@@ -1226,687 +1208,131 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected, Unprotected and Recipient Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(decode(uncompressedFullDetachedTokenNoAad)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>(
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected, Unprotected and Recipient Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(uncompressedFullDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("Mz-VPPyU4RlcuYv1IwIvzw", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algKidHeader,
+        },
+      ],
+      unprotectedHeader: jkuHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("8nmSbluZF1Ws1sABt49r6Q", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: algEncZipJkuKidHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedUnprotectedAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algEncZipJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Recipient Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedRecipientAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algEncZipJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Unprotected Attached Token with no Additional Authenticated Data.", () => {
+    expect(
+      decode(compressedProtectedAndUnprotectedAttachedTokenNoAad),
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algZipJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Recipient Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedAndRecipientAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>(
       {
         additionalAuthenticatedData: null,
-        authenticationTag: Buffer.from("Mz-VPPyU4RlcuYv1IwIvzw", "base64url"),
-        ciphertext: null,
-        initializationVector,
-        protectedHeader: encHeader,
-        recipients: [
-          {
-            encryptedKey,
-            header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-            recipientUnprotectedHeader: algKidHeader,
-          },
-        ],
-        unprotectedHeader: jkuHeader,
-      },
-    );
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("8nmSbluZF1Ws1sABt49r6Q", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: algEncZipJkuKidHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedUnprotectedAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algEncZipJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Recipient Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedRecipientAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algEncZipJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Unprotected Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAndUnprotectedAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algZipJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Recipient Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAndRecipientAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algZipJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected and Recipient Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedUnprotectedAndRecipientAttachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algZipJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: encHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected, Unprotected and Recipient Attached Token with no Additional Authenticated Data.", async () => {
-    await expect(decode(compressedFullAttachedTokenNoAad)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algZipKidHeader,
-        },
-      ],
-      unprotectedHeader: jkuHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("8nmSbluZF1Ws1sABt49r6Q", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: algEncZipJkuKidHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedUnprotectedDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algEncZipJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Recipient Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedRecipientDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algEncZipJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Unprotected Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAndUnprotectedDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algZipJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Recipient Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAndRecipientDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algZipJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected and Recipient Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedUnprotectedAndRecipientDetachedTokenNoAad),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algZipJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: encHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected, Unprotected and Recipient Detached Token with no Additional Authenticated Data.", async () => {
-    await expect(decode(compressedFullDetachedTokenNoAad)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData: null,
-      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algZipKidHeader,
-        },
-      ],
-      unprotectedHeader: jkuHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected Attached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(uncompressedProtectedAttachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>(
-      {
-        additionalAuthenticatedData,
-        authenticationTag: Buffer.from("2WcnJIVXlq2EYEbHWKr-7g", "base64url"),
-        ciphertext,
-        initializationVector,
-        protectedHeader: algEncJkuKidHeader,
-        recipients: [
-          {
-            encryptedKey,
-            header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-            recipientUnprotectedHeader: null,
-          },
-        ],
-        unprotectedHeader: null,
-      },
-    );
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected Attached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedUnprotectedAttachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
-      ciphertext,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algEncJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Recipient Attached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(uncompressedRecipientAttachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>(
-      {
-        additionalAuthenticatedData,
-        authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
-        ciphertext,
-        initializationVector,
-        protectedHeader: null,
-        recipients: [
-          {
-            encryptedKey,
-            header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-            recipientUnprotectedHeader: algEncJkuKidHeader,
-          },
-        ],
-        unprotectedHeader: null,
-      },
-    );
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Unprotected Attached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedProtectedAndUnprotectedAttachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
-      ciphertext,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Recipient Attached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedProtectedAndRecipientAttachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
-      ciphertext,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected and Recipient Attached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedUnprotectedAndRecipientAttachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
-      ciphertext,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: encHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected, Unprotected and Recipient Attached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(uncompressedFullAttachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
-      ciphertext,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algKidHeader,
-        },
-      ],
-      unprotectedHeader: jkuHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected Detached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(uncompressedProtectedDetachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>(
-      {
-        additionalAuthenticatedData,
-        authenticationTag: Buffer.from("2WcnJIVXlq2EYEbHWKr-7g", "base64url"),
-        ciphertext: null,
-        initializationVector,
-        protectedHeader: algEncJkuKidHeader,
-        recipients: [
-          {
-            encryptedKey,
-            header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-            recipientUnprotectedHeader: null,
-          },
-        ],
-        unprotectedHeader: null,
-      },
-    );
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected Detached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedUnprotectedDetachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algEncJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Recipient Detached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(uncompressedRecipientDetachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>(
-      {
-        additionalAuthenticatedData,
-        authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
-        ciphertext: null,
-        initializationVector,
-        protectedHeader: null,
-        recipients: [
-          {
-            encryptedKey,
-            header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-            recipientUnprotectedHeader: algEncJkuKidHeader,
-          },
-        ],
-        unprotectedHeader: null,
-      },
-    );
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Unprotected Detached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedProtectedAndUnprotectedDetachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Recipient Detached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedProtectedAndRecipientDetachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected and Recipient Detached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(uncompressedUnprotectedAndRecipientDetachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: encHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected, Unprotected and Recipient Detached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(uncompressedFullDetachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
-      ciphertext: null,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algKidHeader,
-        },
-      ],
-      unprotectedHeader: jkuHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected Attached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(compressedProtectedAttachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("SRoHlcdRqnsVScLWNZIwtA", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: algEncZipJkuKidHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected Attached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(compressedUnprotectedAttachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>(
-      {
-        additionalAuthenticatedData,
-        authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
+        authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
         ciphertext: compressedCiphertext,
         initializationVector,
-        protectedHeader: null,
+        protectedHeader: encHeader,
         recipients: [
           {
             encryptedKey,
-            header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-            recipientUnprotectedHeader: null,
+            joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+            recipientUnprotectedHeader: algZipJkuKidHeader,
           },
         ],
-        unprotectedHeader: algEncZipJkuKidHeader,
+        unprotectedHeader: null,
       },
     );
   });
 
-  it("should return the General JSON Web Encryption Parameters from a Compressed Recipient Attached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(compressedRecipientAttachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
+  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected and Recipient Attached Token with no Additional Authenticated Data.", () => {
+    expect(
+      decode(compressedUnprotectedAndRecipientAttachedTokenNoAad),
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
       ciphertext: compressedCiphertext,
       initializationVector,
       protectedHeader: null,
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algEncZipJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Unprotected Attached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAndUnprotectedAttachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("1IIFfjlJQ4EkqwKhBdlY5w", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: null,
-        },
-      ],
-      unprotectedHeader: algZipJkuKidHeader,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Recipient Attached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAndRecipientAttachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("1IIFfjlJQ4EkqwKhBdlY5w", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: encHeader,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-          recipientUnprotectedHeader: algZipJkuKidHeader,
-        },
-      ],
-      unprotectedHeader: null,
-    });
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected and Recipient Attached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedUnprotectedAndRecipientAttachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
-      additionalAuthenticatedData,
-      authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
-      ciphertext: compressedCiphertext,
-      initializationVector,
-      protectedHeader: null,
-      recipients: [
-        {
-          encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algZipJkuKidHeader,
         },
       ],
@@ -1914,8 +1340,464 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected, Unprotected and Recipient Attached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(compressedFullAttachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected, Unprotected and Recipient Attached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedFullAttachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algZipKidHeader,
+        },
+      ],
+      unprotectedHeader: jkuHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("8nmSbluZF1Ws1sABt49r6Q", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: algEncZipJkuKidHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedUnprotectedDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algEncZipJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Recipient Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedRecipientDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algEncZipJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Unprotected Detached Token with no Additional Authenticated Data.", () => {
+    expect(
+      decode(compressedProtectedAndUnprotectedDetachedTokenNoAad),
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algZipJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Recipient Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedAndRecipientDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>(
+      {
+        additionalAuthenticatedData: null,
+        authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
+        ciphertext: null,
+        initializationVector,
+        protectedHeader: encHeader,
+        recipients: [
+          {
+            encryptedKey,
+            joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+            recipientUnprotectedHeader: algZipJkuKidHeader,
+          },
+        ],
+        unprotectedHeader: null,
+      },
+    );
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected and Recipient Detached Token with no Additional Authenticated Data.", () => {
+    expect(
+      decode(compressedUnprotectedAndRecipientDetachedTokenNoAad),
+    ).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("6mQsBNyxIUzsP37fC54ZjQ", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algZipJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: encHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected, Unprotected and Recipient Detached Token with no Additional Authenticated Data.", () => {
+    expect(decode(compressedFullDetachedTokenNoAad)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData: null,
+      authenticationTag: Buffer.from("FVFsNAUL3jgdAmZnSVxAFQ", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algZipKidHeader,
+        },
+      ],
+      unprotectedHeader: jkuHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedProtectedAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("2WcnJIVXlq2EYEbHWKr-7g", "base64url"),
+      ciphertext,
+      initializationVector,
+      protectedHeader: algEncJkuKidHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedUnprotectedAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
+      ciphertext,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algEncJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Recipient Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedRecipientAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
+      ciphertext,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algEncJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Unprotected Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedProtectedAndUnprotectedAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
+      ciphertext,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Recipient Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedProtectedAndRecipientAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
+      ciphertext,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected and Recipient Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedUnprotectedAndRecipientAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
+      ciphertext,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: encHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected, Unprotected and Recipient Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedFullAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
+      ciphertext,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algKidHeader,
+        },
+      ],
+      unprotectedHeader: jkuHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedProtectedDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("2WcnJIVXlq2EYEbHWKr-7g", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: algEncJkuKidHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedUnprotectedDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algEncJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Recipient Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedRecipientDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algEncJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Unprotected Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedProtectedAndUnprotectedDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected and Recipient Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedProtectedAndRecipientDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Unprotected and Recipient Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedUnprotectedAndRecipientDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("W77Q108vf3uFnX_LmZPIlA", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: encHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from an Uncompressed Protected, Unprotected and Recipient Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(uncompressedFullDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("ULYMNP5lrIthBrdvAIzyqg", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algKidHeader,
+        },
+      ],
+      unprotectedHeader: jkuHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("SRoHlcdRqnsVScLWNZIwtA", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: algEncZipJkuKidHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedUnprotectedAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algEncZipJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Recipient Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedRecipientAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algEncZipJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Unprotected Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedAndUnprotectedAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag: Buffer.from("1IIFfjlJQ4EkqwKhBdlY5w", "base64url"),
       ciphertext: compressedCiphertext,
@@ -1924,7 +1806,61 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algZipJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Recipient Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedAndRecipientAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("1IIFfjlJQ4EkqwKhBdlY5w", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algZipJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: null,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected and Recipient Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedUnprotectedAndRecipientAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: algZipJkuKidHeader,
+        },
+      ],
+      unprotectedHeader: encHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected, Unprotected and Recipient Attached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedFullAttachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("1IIFfjlJQ4EkqwKhBdlY5w", "base64url"),
+      ciphertext: compressedCiphertext,
+      initializationVector,
+      protectedHeader: encHeader,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algZipKidHeader,
         },
       ],
@@ -1932,8 +1868,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected Detached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(compressedProtectedDetachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag: Buffer.from("SRoHlcdRqnsVScLWNZIwtA", "base64url"),
       ciphertext: null,
@@ -1942,7 +1878,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: null,
         },
       ],
@@ -1950,28 +1886,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected Detached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(compressedUnprotectedDetachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>(
-      {
-        additionalAuthenticatedData,
-        authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
-        ciphertext: null,
-        initializationVector,
-        protectedHeader: null,
-        recipients: [
-          {
-            encryptedKey,
-            header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
-            recipientUnprotectedHeader: null,
-          },
-        ],
-        unprotectedHeader: algEncZipJkuKidHeader,
-      },
-    );
-  });
-
-  it("should return the General JSON Web Encryption Parameters from a Compressed Recipient Detached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(compressedRecipientDetachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedUnprotectedDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
       ciphertext: null,
@@ -1980,7 +1896,25 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
+          recipientUnprotectedHeader: null,
+        },
+      ],
+      unprotectedHeader: algEncZipJkuKidHeader,
+    });
+  });
+
+  it("should return the General JSON Web Encryption Parameters from a Compressed Recipient Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedRecipientDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
+      additionalAuthenticatedData,
+      authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
+      ciphertext: null,
+      initializationVector,
+      protectedHeader: null,
+      recipients: [
+        {
+          encryptedKey,
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algEncZipJkuKidHeader,
         },
       ],
@@ -1988,10 +1922,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Unprotected Detached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAndUnprotectedDetachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Unprotected Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedAndUnprotectedDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag: Buffer.from("1IIFfjlJQ4EkqwKhBdlY5w", "base64url"),
       ciphertext: null,
@@ -2000,7 +1932,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: null,
         },
       ],
@@ -2008,10 +1940,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Recipient Detached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedProtectedAndRecipientDetachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected and Recipient Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedProtectedAndRecipientDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag: Buffer.from("1IIFfjlJQ4EkqwKhBdlY5w", "base64url"),
       ciphertext: null,
@@ -2020,7 +1950,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algZipJkuKidHeader,
         },
       ],
@@ -2028,10 +1958,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected and Recipient Detached Token with Additional Authenticated Data.", async () => {
-    await expect(
-      decode(compressedUnprotectedAndRecipientDetachedToken),
-    ).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from a Compressed Unprotected and Recipient Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedUnprotectedAndRecipientDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag: Buffer.from("0Z9lyKxM6Rz-6zCUcfNOmQ", "base64url"),
       ciphertext: null,
@@ -2040,7 +1968,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algZipJkuKidHeader,
         },
       ],
@@ -2048,8 +1976,8 @@ describe("decode()", () => {
     });
   });
 
-  it("should return the General JSON Web Encryption Parameters from a Compressed Protected, Unprotected and Recipient Detached Token with Additional Authenticated Data.", async () => {
-    await expect(decode(compressedFullDetachedToken)).resolves.toStrictEqual<GeneralJsonWebEncryptionParameters>({
+  it("should return the General JSON Web Encryption Parameters from a Compressed Protected, Unprotected and Recipient Detached Token with Additional Authenticated Data.", () => {
+    expect(decode(compressedFullDetachedToken)).toStrictEqual<GeneralJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag: Buffer.from("1IIFfjlJQ4EkqwKhBdlY5w", "base64url"),
       ciphertext: null,
@@ -2058,7 +1986,7 @@ describe("decode()", () => {
       recipients: [
         {
           encryptedKey,
-          header: new JsonWebEncryptionHeader(algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters),
+          joseHeader: algEncZipJkuKidHeader as JsonWebEncryptionHeaderParameters,
           recipientUnprotectedHeader: algZipKidHeader,
         },
       ],

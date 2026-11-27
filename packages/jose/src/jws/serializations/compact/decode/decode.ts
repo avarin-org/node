@@ -1,9 +1,10 @@
 import { Buffer } from "node:buffer";
 
+import { JSON } from "@avarin/primitives/json";
 import { Strings } from "@avarin/primitives/strings";
 
 import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonwebsignature.error.ts";
-import { header } from "../../../header/index.ts";
+import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
 import type { CompactJsonWebSignatureParameters } from "../compact.jsonwebsignature.parameters.ts";
 import type { CompactJsonWebSignatureToken } from "../compact.jsonwebsignature.token.ts";
 
@@ -14,7 +15,7 @@ import type { CompactJsonWebSignatureToken } from "../compact.jsonwebsignature.t
  * @returns Compact JSON Web Signature Parameters.
  * @throws {InvalidJsonWebSignatureError} The provided JSON Web Signature is invalid.
  */
-export async function decode(token: string): Promise<CompactJsonWebSignatureParameters> {
+export function decode(token: string): CompactJsonWebSignatureParameters {
   if (!Strings.isNonEmpty(token)) {
     throw new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
   }
@@ -28,13 +29,16 @@ export async function decode(token: string): Promise<CompactJsonWebSignaturePara
   try {
     const [encodedProtectedHeader, encodedPayload, encodedSignature] = tokenParts;
 
-    const protectedHeader = await header.parse(Buffer.from(encodedProtectedHeader, "base64url").toString("utf8"));
-    const payload = Buffer.from(encodedPayload, protectedHeader.parameters.b64 === false ? "utf8" : "base64url");
+    const joseHeader = JSON.parse<JsonWebSignatureHeaderParameters>(
+      Buffer.from(encodedProtectedHeader, "base64url").toString("utf8"),
+    );
+
+    const payload = Buffer.from(encodedPayload, joseHeader.b64 === false ? "utf8" : "base64url");
     const signature = Buffer.from(encodedSignature, "base64url");
 
     return {
+      joseHeader,
       payload: payload.byteLength > 0 ? payload : null,
-      protectedHeader,
       signature,
     };
   } catch (error: unknown) {

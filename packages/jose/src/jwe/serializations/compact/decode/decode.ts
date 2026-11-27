@@ -1,9 +1,10 @@
 import { Buffer } from "node:buffer";
 
+import { JSON } from "@avarin/primitives/json";
 import { Strings } from "@avarin/primitives/strings";
 
 import { InvalidJsonWebEncryptionError } from "../../../../errors/invalid-jsonwebencryption.error.ts";
-import { header } from "../../../header/index.ts";
+import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
 import type { CompactJsonWebEncryptionParameters } from "../compact.jsonwebencryption.parameters.ts";
 import type { CompactJsonWebEncryptionToken } from "../compact.jsonwebencryption.token.ts";
 
@@ -14,7 +15,7 @@ import type { CompactJsonWebEncryptionToken } from "../compact.jsonwebencryption
  * @returns Compact JSON Web Encryption Parameters.
  * @throws {InvalidJsonWebEncryptionError} The provided JSON Web Encryption is invalid.
  */
-export async function decode(token: string): Promise<CompactJsonWebEncryptionParameters> {
+export function decode(token: string): CompactJsonWebEncryptionParameters {
   if (!Strings.isNonEmpty(token)) {
     throw new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
   }
@@ -34,7 +35,10 @@ export async function decode(token: string): Promise<CompactJsonWebEncryptionPar
       encodedAuthenticationTag,
     ] = tokenParts;
 
-    const protectedHeader = await header.parse(Buffer.from(encodedProtectedHeader, "base64url").toString("utf8"));
+    const joseHeader = JSON.parse<JsonWebEncryptionHeaderParameters>(
+      Buffer.from(encodedProtectedHeader, "base64url").toString("utf8"),
+    );
+
     const encryptedKey = Buffer.from(encodedEncryptedKey, "base64url");
     const initializationVector = Buffer.from(encodedInitializationVector, "base64url");
     const ciphertext = Buffer.from(encodedCiphertext, "base64url");
@@ -47,7 +51,7 @@ export async function decode(token: string): Promise<CompactJsonWebEncryptionPar
       ciphertext: ciphertext.byteLength > 0 ? ciphertext : null,
       encryptedKey,
       initializationVector,
-      protectedHeader,
+      joseHeader,
     };
   } catch (error: unknown) {
     throw new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.", { cause: error });

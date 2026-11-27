@@ -18,6 +18,8 @@ interface CompactJsonWebEncryptionMethods {
    * @param token Compact JSON Web Encryption Token.
    * @param options Compact JSON Web Encryption deserialize options.
    * @returns Compact JSON Web Encryption.
+   * @throws {InvalidJoseHeaderError} The JSON Web Encryption Header of the provided Compact JSON Web Encryption Token
+   *   is invalid.
    * @throws {InvalidJsonWebEncryptionError} Failed to deserialize the Compact JSON Web Encryption.
    * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the Compact JSON Web
    *   Encryption Token.

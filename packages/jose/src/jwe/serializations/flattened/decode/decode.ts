@@ -6,9 +6,7 @@ import { Strings } from "@avarin/primitives/strings";
 
 import { InvalidJsonWebEncryptionError } from "../../../../errors/invalid-jsonwebencryption.error.ts";
 import { checkPartialJoseHeader } from "../../../../utils/check-partial-jose-header/check-partial-jose-header.ts";
-import { header } from "../../../header/index.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
-import type { JsonWebEncryptionHeader } from "../../../header/jsonwebencryption.header.ts";
 import type { FlattenedJsonWebEncryptionParameters } from "../flattened.jsonwebencryption.parameters.ts";
 import type { FlattenedJsonWebEncryptionToken } from "../flattened.jsonwebencryption.token.ts";
 
@@ -60,11 +58,11 @@ function isValidFlattenedJsonWebEncryptionToken(token: FlattenedJsonWebEncryptio
   }
 }
 
-async function getJoseHeader(
+function getJoseHeaderParameters(
   protectedHeader: Partial<JsonWebEncryptionHeaderParameters> | null,
   unprotectedHeader: Partial<JsonWebEncryptionHeaderParameters> | null,
   recipientUnprotectedHeader: Partial<JsonWebEncryptionHeaderParameters> | null,
-): Promise<JsonWebEncryptionHeader> {
+): JsonWebEncryptionHeaderParameters {
   const headerKeys = [
     ...Object.keys(protectedHeader ?? {}),
     ...Object.keys(unprotectedHeader ?? {}),
@@ -75,13 +73,11 @@ async function getJoseHeader(
     throw new TypeError("Cannot have repeated JSON Web Encryption Header Parameters.");
   }
 
-  const headerParameters = {
+  return {
     ...protectedHeader,
     ...unprotectedHeader,
     ...recipientUnprotectedHeader,
   } as JsonWebEncryptionHeaderParameters;
-
-  return await header.create(headerParameters);
 }
 
 /**
@@ -91,7 +87,7 @@ async function getJoseHeader(
  * @returns Flattened JSON Web Encryption Parameters.
  * @throws {InvalidJsonWebEncryptionError} The provided JSON Web Encryption is invalid.
  */
-export async function decode(token: FlattenedJsonWebEncryptionToken): Promise<FlattenedJsonWebEncryptionParameters> {
+export function decode(token: FlattenedJsonWebEncryptionToken): FlattenedJsonWebEncryptionParameters {
   if (!Objects.isPlain(token) || !isValidFlattenedJsonWebEncryptionToken(token)) {
     throw new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
   }
@@ -113,7 +109,7 @@ export async function decode(token: FlattenedJsonWebEncryptionToken): Promise<Fl
       recipientUnprotectedHeader = token.header;
     }
 
-    const joseHeader = await getJoseHeader(protectedHeader, unprotectedHeader, recipientUnprotectedHeader);
+    const joseHeader = getJoseHeaderParameters(protectedHeader, unprotectedHeader, recipientUnprotectedHeader);
 
     return {
       additionalAuthenticatedData:
@@ -123,8 +119,8 @@ export async function decode(token: FlattenedJsonWebEncryptionToken): Promise<Fl
       authenticationTag: Buffer.from(token.tag, "base64url"),
       ciphertext: "ciphertext" in token ? Buffer.from(token.ciphertext, "base64url") : null,
       encryptedKey: "encrypted_key" in token ? Buffer.from(token.encrypted_key, "base64url") : null,
-      header: joseHeader,
       initializationVector: Buffer.from(token.iv, "base64url"),
+      joseHeader,
       protectedHeader,
       recipientUnprotectedHeader,
       unprotectedHeader,

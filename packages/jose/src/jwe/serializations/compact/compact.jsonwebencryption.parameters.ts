@@ -1,4 +1,4 @@
-import type { JsonWebEncryptionHeader } from "../../header/jsonwebencryption.header.ts";
+import type { JsonWebEncryptionHeaderParameters } from "../../header/jsonwebencryption.header.parameters.ts";
 
 /**
  * Compact JSON Web Encryption Parameters.
@@ -9,7 +9,7 @@ export interface CompactJsonWebEncryptionParameters {
   /**
    * JSON Web Encryption Protected Header.
    */
-  readonly protectedHeader: JsonWebEncryptionHeader;
+  readonly joseHeader: JsonWebEncryptionHeaderParameters;
 
   /**
    * JSON Web Encryption Encrypted Key.

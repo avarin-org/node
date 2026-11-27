@@ -18,6 +18,8 @@ interface FlattenedJsonWebEncryptionMethods {
    * @param token Flattened JSON Web Encryption Token.
    * @param options Flattened JSON Web Encryption deserialize options.
    * @returns Flattened JSON Web Encryption.
+   * @throws {InvalidJoseHeaderError} The JSON Web Encryption Header of the provided Flattened JSON Web Encryption Token
+   *   is invalid.
    * @throws {InvalidJsonWebEncryptionError} Failed to deserialize the Flattened JSON Web Encryption.
    * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the Flattened JSON Web
    *   Encryption Token.

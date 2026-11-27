@@ -278,8 +278,8 @@ describe("deserialize()", () => {
 
   it("should return the deserialized Compact JSON Web Encryption from an Attached Compact JSON Web Encryption Token.", async () => {
     await expect(deserialize(attachedToken, { jsonWebKey })).resolves.toStrictEqual<CompactJsonWebEncryption>({
+      header: new JsonWebEncryptionHeader(protectedHeader),
       plaintext,
-      protectedHeader: new JsonWebEncryptionHeader(protectedHeader),
     });
   });
 
@@ -287,14 +287,14 @@ describe("deserialize()", () => {
     await expect(
       deserialize(detachedToken, { detachedCiphertext: ciphertext, jsonWebKey }),
     ).resolves.toStrictEqual<CompactJsonWebEncryption>({
+      header: new JsonWebEncryptionHeader(protectedHeader),
       plaintext,
-      protectedHeader: new JsonWebEncryptionHeader(protectedHeader),
     });
   });
 
   it("should return the deserialized Compact JSON Web Encryption from a Compressed Attached Compact JSON Web Encryption Token.", async () => {
     await expect(deserialize(compressedAttachedToken, { jsonWebKey })).resolves.toStrictEqual<CompactJsonWebEncryption>(
-      { plaintext, protectedHeader: new JsonWebEncryptionHeader(protectedCompressedHeader) },
+      { header: new JsonWebEncryptionHeader(protectedCompressedHeader), plaintext },
     );
   });
 
@@ -302,8 +302,8 @@ describe("deserialize()", () => {
     await expect(
       deserialize(compressedDetachedToken, { detachedCiphertext: compressedCiphertext, jsonWebKey }),
     ).resolves.toStrictEqual<CompactJsonWebEncryption>({
+      header: new JsonWebEncryptionHeader(protectedCompressedHeader),
       plaintext,
-      protectedHeader: new JsonWebEncryptionHeader(protectedCompressedHeader),
     });
   });
 });

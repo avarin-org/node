@@ -2,7 +2,6 @@ import { Functions } from "@avarin/primitives/functions";
 import { Objects } from "@avarin/primitives/objects";
 import type { Constructor } from "@avarin/primitives/types";
 
-import { InvalidJsonWebTokenClaimsError } from "../../../errors/invalid-jsonwebtoken-claims.error.ts";
 import { JsonWebTokenClaims } from "../jsonwebtoken.claims.js";
 import type { JsonWebTokenClaimsParameters } from "../jsonwebtoken.claims.parameters.ts";
 
@@ -69,14 +68,14 @@ export async function create<T extends JsonWebTokenClaims = JsonWebTokenClaims>(
   }
 
   if (!Objects.isPlain(parameters)) {
-    throw new InvalidJsonWebTokenClaimsError("The provided JSON Web Token Claims Parameters is invalid.");
+    throw new TypeError("The provided JSON Web Token Claims Parameters is invalid.");
   }
 
   if (!Objects.isPlain(additionalParameters)) {
-    throw new InvalidJsonWebTokenClaimsError("The provided JSON Web Token Claims Parameters is invalid.");
+    throw new TypeError("The provided JSON Web Token Claims Parameters is invalid.");
   }
 
-  const jsonWebTokenClaimsParameters = { ...parameters, ...additionalParameters } as JsonWebTokenClaimsParameters;
+  const jsonWebTokenClaimsParameters: JsonWebTokenClaimsParameters = { ...parameters, ...additionalParameters };
 
   return new ClaimsConstructor(jsonWebTokenClaimsParameters) as T;
 }

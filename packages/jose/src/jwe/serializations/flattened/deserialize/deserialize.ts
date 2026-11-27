@@ -11,6 +11,7 @@ import type { CompressionAlgorithm } from "../../../../jwa/jwe/zip/compression-a
 import { COMPRESSION_BACKEND_REGISTRY } from "../../../../jwa/jwe/zip/compression.backend.registry.ts";
 import { CompressionBackend } from "../../../../jwa/jwe/zip/compression.backend.ts";
 import { JsonWebKey } from "../../../../jwk/jsonwebkey.ts";
+import { header as jweHeader } from "../../../header/index.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
 import type { DeserializeOptions } from "../../compact/deserialize/deserialize.options.ts";
 import { decode } from "../decode/decode.ts";
@@ -113,6 +114,8 @@ function validateExpectedAlgorithms(
  * @param token Flattened JSON Web Encryption Token.
  * @param options Flattened JSON Web Encryption deserialize options.
  * @returns Flattened JSON Web Encryption.
+ * @throws {InvalidJoseHeaderError} The JSON Web Encryption Header of the provided Flattened JSON Web Encryption Token
+ *   is invalid.
  * @throws {InvalidJsonWebEncryptionError} Failed to deserialize the Flattened JSON Web Encryption.
  * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the Flattened JSON Web
  *   Encryption Token.
@@ -129,14 +132,16 @@ export async function deserialize(
     authenticationTag,
     ciphertext,
     encryptedKey,
-    header,
+    joseHeader,
     initializationVector,
     protectedHeader,
     recipientUnprotectedHeader,
     unprotectedHeader,
-  } = await decode(token);
+  } = decode(token);
 
   validateDetachedCiphertext(ciphertext, options.detachedCiphertext);
+
+  const header = await jweHeader.create(joseHeader);
 
   if (options.jsonWebKey instanceof JsonWebKey) {
     header.jsonWebKey = options.jsonWebKey;

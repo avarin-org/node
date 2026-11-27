@@ -193,8 +193,8 @@ describe("deserialize()", () => {
     await expect(
       deserialize(unencodedAttachedTokenWithoutDot, { jsonWebKey }),
     ).resolves.toStrictEqual<CompactJsonWebSignature>({
+      header: new JsonWebSignatureHeader(unencodedProtectedHeader),
       payload: payloadWithoutDot,
-      protectedHeader: new JsonWebSignatureHeader(unencodedProtectedHeader),
     });
   });
 
@@ -202,8 +202,8 @@ describe("deserialize()", () => {
     await expect(
       deserialize(unencodedDetachedTokenWithoutDot, { detachedPayload: payloadWithoutDot, jsonWebKey }),
     ).resolves.toStrictEqual<CompactJsonWebSignature>({
+      header: new JsonWebSignatureHeader(unencodedProtectedHeader),
       payload: payloadWithoutDot,
-      protectedHeader: new JsonWebSignatureHeader(unencodedProtectedHeader),
     });
   });
 
@@ -217,15 +217,15 @@ describe("deserialize()", () => {
         }),
       }),
     ).resolves.toStrictEqual<CompactJsonWebSignature>({
+      header: new JsonWebSignatureHeader(unencodedProtectedHeader),
       payload: payloadWithDot,
-      protectedHeader: new JsonWebSignatureHeader(unencodedProtectedHeader),
     });
   });
 
   it("should return the deserialized Compact JSON Web Signature from an Attached Encoded Compact JSON Web Signature Token without a dot.", async () => {
     await expect(deserialize(encodedAttachedToken, { jsonWebKey })).resolves.toStrictEqual<CompactJsonWebSignature>({
+      header: new JsonWebSignatureHeader(encodedProtectedHeader),
       payload: payloadWithoutDot,
-      protectedHeader: new JsonWebSignatureHeader(encodedProtectedHeader),
     });
   });
 
@@ -233,8 +233,8 @@ describe("deserialize()", () => {
     await expect(
       deserialize(encodedDetachedToken, { detachedPayload: payloadWithoutDot, jsonWebKey }),
     ).resolves.toStrictEqual<CompactJsonWebSignature>({
+      header: new JsonWebSignatureHeader(encodedProtectedHeader),
       payload: payloadWithoutDot,
-      protectedHeader: new JsonWebSignatureHeader(encodedProtectedHeader),
     });
   });
 });

@@ -7,15 +7,14 @@ import { Strings } from "@avarin/primitives/strings";
 import { InvalidJoseHeaderError } from "../../../../errors/invalid-jose-header.error.ts";
 import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonwebsignature.error.ts";
 import { checkPartialJoseHeader } from "../../../../utils/check-partial-jose-header/check-partial-jose-header.ts";
-import { header } from "../../../header/index.ts";
 import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
 import type { GeneralJsonWebSignatureHeaders } from "../general.jsonwebsignature.headers.ts";
 import type {
   GeneralJsonWebSignatureParameters,
   GeneralJsonWebSignatureParametersSignature,
+  GeneralJsonWebSignatureParsedHeadersParameters,
 } from "../general.jsonwebsignature.parameters.ts";
 import type { GeneralJsonWebSignatureToken } from "../general.jsonwebsignature.token.ts";
-import type { GeneralJsonWebSignatureParsedHeaders } from "../general.jsonwebsignature.ts";
 
 function isValidGeneralJsonWebSignatureToken(token: GeneralJsonWebSignatureToken): boolean {
   if ("payload" in token && !Strings.isNonEmpty(token.payload)) {
@@ -35,11 +34,7 @@ function isValidGeneralJsonWebSignatureToken(token: GeneralJsonWebSignatureToken
       return false;
     }
 
-    if (
-      "protected" in signature &&
-      (!Strings.isNonEmpty(signature.protected) ||
-        !checkPartialJoseHeader(JSON.parse(Buffer.from(signature.protected, "base64url").toString("utf8"))))
-    ) {
+    if ("protected" in signature && !Strings.isNonEmpty(signature.protected)) {
       return false;
     }
 
@@ -55,7 +50,9 @@ function isValidGeneralJsonWebSignatureToken(token: GeneralJsonWebSignatureToken
   return true;
 }
 
-async function getJoseHeader(headers: GeneralJsonWebSignatureHeaders): Promise<GeneralJsonWebSignatureParsedHeaders> {
+function getJoseHeaderParameters(
+  headers: GeneralJsonWebSignatureHeaders,
+): GeneralJsonWebSignatureParsedHeadersParameters {
   if (
     !new Set(Object.keys(headers.protectedHeader ?? {})).isDisjointFrom(
       new Set(Object.keys(headers.unprotectedHeader ?? {})),
@@ -74,13 +71,8 @@ async function getJoseHeader(headers: GeneralJsonWebSignatureHeaders): Promise<G
     }
   }
 
-  const headerParameters = {
-    ...headers.protectedHeader,
-    ...headers.unprotectedHeader,
-  } as JsonWebSignatureHeaderParameters;
-
   return {
-    header: await header.create(headerParameters),
+    joseHeader: { ...headers.protectedHeader, ...headers.unprotectedHeader } as JsonWebSignatureHeaderParameters,
     protectedHeader: headers.protectedHeader ?? null,
     unprotectedHeader: headers.unprotectedHeader ?? null,
   };
@@ -93,50 +85,48 @@ async function getJoseHeader(headers: GeneralJsonWebSignatureHeaders): Promise<G
  * @returns General JSON Web Signature Parameters.
  * @throws {InvalidJsonWebSignatureError} The provided JSON Web Signature is invalid.
  */
-export async function decode(token: GeneralJsonWebSignatureToken): Promise<GeneralJsonWebSignatureParameters> {
+export function decode(token: GeneralJsonWebSignatureToken): GeneralJsonWebSignatureParameters {
   if (!Objects.isPlain(token) || !isValidGeneralJsonWebSignatureToken(token)) {
     throw new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
   }
 
   const isUnencodedHeader: boolean[] = [];
 
-  const signatures = await Promise.all(
-    token.signatures.map<Promise<GeneralJsonWebSignatureParametersSignature>>(async (signature) => {
-      try {
-        const headers: GeneralJsonWebSignatureHeaders = {};
+  const signatures = token.signatures.map<GeneralJsonWebSignatureParametersSignature>((signature) => {
+    try {
+      const headers: GeneralJsonWebSignatureHeaders = {};
 
-        if ("protected" in signature) {
-          Reflect.set(
-            headers,
-            "protectedHeader",
-            JSON.parse(Buffer.from(signature.protected, "base64url").toString("utf8")),
-          );
-        }
-
-        if ("header" in signature) {
-          Reflect.set(headers, "unprotectedHeader", signature.header);
-        }
-
-        const parsedHeader = await getJoseHeader(headers);
-
-        isUnencodedHeader.push(parsedHeader.header.parameters.b64 === false);
-
-        return {
-          header: parsedHeader.header,
-          protectedHeader: parsedHeader.protectedHeader,
-          signature: Buffer.from(signature.signature, "base64url"),
-          unprotectedHeader: parsedHeader.unprotectedHeader,
-        };
-      } catch (error: unknown) {
-        throw new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.", { cause: error });
+      if ("protected" in signature) {
+        Reflect.set(
+          headers,
+          "protectedHeader",
+          JSON.parse(Buffer.from(signature.protected, "base64url").toString("utf8")),
+        );
       }
-    }),
-  );
+
+      if ("header" in signature) {
+        Reflect.set(headers, "unprotectedHeader", signature.header);
+      }
+
+      const parsedHeader = getJoseHeaderParameters(headers);
+
+      isUnencodedHeader.push(parsedHeader.joseHeader.b64 === false);
+
+      return {
+        joseHeader: parsedHeader.joseHeader,
+        protectedHeader: parsedHeader.protectedHeader,
+        signature: Buffer.from(signature.signature, "base64url"),
+        unprotectedHeader: parsedHeader.unprotectedHeader,
+      };
+    } catch (error: unknown) {
+      throw new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.", { cause: error });
+    }
+  });
 
   const parameters: GeneralJsonWebSignatureParameters = {
     payload:
       "payload" in token
-        ? Buffer.from(token.payload, signatures[0]!.header.parameters.b64 === false ? "utf8" : "base64url")
+        ? Buffer.from(token.payload, signatures[0]!.joseHeader.b64 === false ? "utf8" : "base64url")
         : null,
     signatures,
   };

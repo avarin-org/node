@@ -18,6 +18,8 @@ interface FlattenedJsonWebSignatureMethods {
    * @param token Flattened JSON Web Signature Token.
    * @param options Flattened JSON Web Signature deserialize options.
    * @returns Flattened JSON Web Signature.
+   * @throws {InvalidJoseHeaderError} The JSON Web Signature Header of the provided Flattened JSON Web Signature Token
+   *   is invalid.
    * @throws {InvalidJsonWebKeyError} The provided JSON Web Key cannot be used to deserialize the Flattened JSON Web
    *   Signature Token.
    * @throws {InvalidJsonWebSignatureError} Failed to deserialize the Flattened JSON Web Signature.

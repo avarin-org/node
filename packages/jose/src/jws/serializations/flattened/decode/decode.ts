@@ -7,9 +7,7 @@ import { Strings } from "@avarin/primitives/strings";
 import { InvalidJoseHeaderError } from "../../../../errors/invalid-jose-header.error.ts";
 import { InvalidJsonWebSignatureError } from "../../../../errors/invalid-jsonwebsignature.error.ts";
 import { checkPartialJoseHeader } from "../../../../utils/check-partial-jose-header/check-partial-jose-header.ts";
-import { header } from "../../../header/index.ts";
 import type { JsonWebSignatureHeaderParameters } from "../../../header/jsonwebsignature.header.parameters.ts";
-import type { JsonWebSignatureHeader } from "../../../header/jsonwebsignature.header.ts";
 import type { FlattenedJsonWebSignatureParameters } from "../flattened.jsonwebsignature.parameters.ts";
 import type { FlattenedJsonWebSignatureToken } from "../flattened.jsonwebsignature.token.ts";
 
@@ -45,10 +43,10 @@ function isValidFlattenedJsonWebSignatureToken(token: FlattenedJsonWebSignatureT
   }
 }
 
-async function getJoseHeader(
+function getJoseHeaderParameters(
   protectedHeader: Partial<JsonWebSignatureHeaderParameters> | null,
   unprotectedHeader: Partial<JsonWebSignatureHeaderParameters> | null,
-): Promise<JsonWebSignatureHeader> {
+): JsonWebSignatureHeaderParameters {
   if (!new Set(Object.keys(protectedHeader ?? {})).isDisjointFrom(new Set(Object.keys(unprotectedHeader ?? {})))) {
     throw new TypeError("Cannot have repeated JSON Web Signature Header Parameters.");
   }
@@ -63,9 +61,7 @@ async function getJoseHeader(
     }
   }
 
-  const headerParameters = { ...protectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters;
-
-  return await header.create(headerParameters);
+  return { ...protectedHeader, ...unprotectedHeader } as JsonWebSignatureHeaderParameters;
 }
 
 /**
@@ -75,7 +71,7 @@ async function getJoseHeader(
  * @returns Flattened JSON Web Signature Parameters.
  * @throws {InvalidJsonWebSignatureError} The provided JSON Web Signature is invalid.
  */
-export async function decode(token: FlattenedJsonWebSignatureToken): Promise<FlattenedJsonWebSignatureParameters> {
+export function decode(token: FlattenedJsonWebSignatureToken): FlattenedJsonWebSignatureParameters {
   if (!Objects.isPlain(token) || !isValidFlattenedJsonWebSignatureToken(token)) {
     throw new InvalidJsonWebSignatureError("The provided JSON Web Signature is invalid.");
   }
@@ -92,14 +88,11 @@ export async function decode(token: FlattenedJsonWebSignatureToken): Promise<Fla
       unprotectedHeader = token.header;
     }
 
-    const joseHeader = await getJoseHeader(protectedHeader, unprotectedHeader);
+    const joseHeader = getJoseHeaderParameters(protectedHeader, unprotectedHeader);
 
     return {
-      header: joseHeader,
-      payload:
-        "payload" in token
-          ? Buffer.from(token.payload, joseHeader.parameters.b64 === false ? "utf8" : "base64url")
-          : null,
+      joseHeader,
+      payload: "payload" in token ? Buffer.from(token.payload, joseHeader.b64 === false ? "utf8" : "base64url") : null,
       protectedHeader: "protected" in token ? protectedHeader : null,
       signature: Buffer.from(token.signature, "base64url"),
       unprotectedHeader: "header" in token ? unprotectedHeader : null,

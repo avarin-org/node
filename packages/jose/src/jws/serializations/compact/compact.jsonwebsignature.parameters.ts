@@ -1,6 +1,6 @@
 import type { Buffer } from "node:buffer";
 
-import type { JsonWebSignatureHeader } from "../../header/jsonwebsignature.header.ts";
+import type { JsonWebSignatureHeaderParameters } from "../../header/jsonwebsignature.header.parameters.ts";
 
 /**
  * Compact JSON Web Signature Parameters.
@@ -11,7 +11,7 @@ export interface CompactJsonWebSignatureParameters {
   /**
    * JSON Web Signature Protected Header.
    */
-  readonly protectedHeader: JsonWebSignatureHeader;
+  readonly joseHeader: JsonWebSignatureHeaderParameters;
 
   /**
    * JSON Web Signature Payload.

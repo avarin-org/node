@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import { InvalidJsonWebEncryptionError } from "../../../../errors/invalid-jsonwebencryption.error.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../../../header/jsonwebencryption.header.parameters.ts";
-import { JsonWebEncryptionHeader } from "../../../header/jsonwebencryption.header.ts";
 import type { CompactJsonWebEncryptionParameters } from "../compact.jsonwebencryption.parameters.ts";
 import { decode } from "./decode.ts";
 
@@ -35,7 +34,7 @@ describe("decode()", () => {
     "U0m_YmjN04DJvceFICbCVQ";
 
   const invalidHeaderToken =
-    "e30." +
+    "ew." +
     "6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ." +
     "AxY8DCtDaGlsbGljb3RoZQ." +
     "KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY." +
@@ -63,51 +62,48 @@ describe("decode()", () => {
   const authenticationTag = Buffer.from("U0m_YmjN04DJvceFICbCVQ", "base64url");
   const additionalAuthenticatedData = Buffer.from("eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0", "ascii");
 
-  it.each(invalidTokens)(
-    "should throw when the provided Compact JSON Web Encryption Token is invalid.",
-    async (token) => {
-      const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
-      await expect(decode(token)).rejects.toThrow(error);
-    },
-  );
+  it.each(invalidTokens)("should throw when the provided Compact JSON Web Encryption Token is invalid.", (token) => {
+    const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
+    expect(() => decode(token)).toThrow(error);
+  });
 
   it.each(invalidTokenFormats)(
     "should throw when the provided Compact JSON Web Encryption Token has an invalid format.",
-    async (token) => {
+    (token) => {
       const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
-      await expect(decode(token)).rejects.toThrow(error);
+      expect(() => decode(token)).toThrow(error);
     },
   );
 
-  it("should throw when failing to parse the Protected Header of the provided Compact JSON Web Encryption Token.", async () => {
+  it("should throw when failing to parse the Protected Header of the provided Compact JSON Web Encryption Token.", () => {
     const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
-    await expect(decode(headerlessToken)).rejects.toThrow(error);
+    expect(() => decode(headerlessToken)).toThrow(error);
   });
 
-  it("should throw when the Protected Header of the provided Compact JSON Web Encryption Token is invalid.", async () => {
+  it("should throw when the Protected Header of the provided Compact JSON Web Encryption Token is invalid.", () => {
     const error = new InvalidJsonWebEncryptionError("The provided JSON Web Encryption is invalid.");
-    await expect(decode(invalidHeaderToken)).rejects.toThrow(error);
+    expect(() => decode(invalidHeaderToken)).toThrow(error);
   });
 
-  it("should return the Compact JSON Web Encryption Parameters from an Attached Compact JSON Web Encryption Token.", async () => {
-    await expect(decode(attachedToken)).resolves.toStrictEqual<CompactJsonWebEncryptionParameters>({
+  it("should return the Compact JSON Web Encryption Parameters from an Attached Compact JSON Web Encryption Token.", () => {
+    expect(decode(attachedToken)).toStrictEqual<CompactJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag,
       ciphertext,
       encryptedKey,
       initializationVector,
-      protectedHeader: new JsonWebEncryptionHeader(protectedHeader),
+      joseHeader: protectedHeader,
     });
   });
 
-  it("should return the Compact JSON Web Encryption Parameters from a Detached Compact JSON Web Encryption Token.", async () => {
-    await expect(decode(detachedToken)).resolves.toStrictEqual<CompactJsonWebEncryptionParameters>({
+  it("should return the Compact JSON Web Encryption Parameters from a Detached Compact JSON Web Encryption Token.", () => {
+    expect(decode(detachedToken)).toStrictEqual<CompactJsonWebEncryptionParameters>({
       additionalAuthenticatedData,
       authenticationTag,
       ciphertext: null,
       encryptedKey,
       initializationVector,
-      protectedHeader: new JsonWebEncryptionHeader(protectedHeader),
+      joseHeader: protectedHeader,
     });
   });
 });
