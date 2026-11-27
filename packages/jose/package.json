@@ -47,6 +47,12 @@
       "import": "./dist/errors/index.js",
       "default": "./dist/errors/index.js"
     },
+    "./jose": {
+      "@avarin/source": "./src/jose/index.ts",
+      "types": "./dist/jose/index.d.ts",
+      "import": "./dist/jose/index.js",
+      "default": "./dist/jose/index.js"
+    },
     "./jwa": {
       "@avarin/source": "./src/jwa/index.ts",
       "types": "./dist/jwa/index.d.ts",

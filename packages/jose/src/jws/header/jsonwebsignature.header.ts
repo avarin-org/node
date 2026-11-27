@@ -1,7 +1,7 @@
 import { Strings } from "@avarin/primitives/strings";
 
 import { InvalidJoseHeaderError } from "../../errors/invalid-jose-header.error.ts";
-import { JoseHeader } from "../../jose/jose-header.ts";
+import { JoseHeader } from "../../jose/header/jose.header.ts";
 import { DIGITAL_SIGNATURE_BACKEND_REGISTRY } from "../../jwa/jws/digital-signature.backend.registry.ts";
 import type { DigitalSignatureBackend } from "../../jwa/jws/digital-signature.backend.ts";
 import type { JsonWebSignatureHeaderParameters } from "./jsonwebsignature.header.parameters.ts";

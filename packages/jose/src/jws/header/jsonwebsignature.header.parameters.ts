@@ -1,4 +1,4 @@
-import type { JoseHeaderParameters } from "../../jose/jose-header.parameters.ts";
+import type { JoseHeaderParameters } from "../../jose/header/jose.header.parameters.ts";
 import type { DigitalSignatureAlgorithm } from "../../jwa/jws/digital-signature-algorithm.type.ts";
 
 /**

@@ -1,12 +1,12 @@
 import { Buffer } from "node:buffer";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
 
+import { jose } from "../../../jose/index.ts";
 import type { JsonWebEncryptionHeaderParameters } from "../jsonwebencryption.header.parameters.ts";
 import { JsonWebEncryptionHeader } from "../jsonwebencryption.header.ts";
 import { check } from "./check.ts";
-
-class CustomJsonWebEncryptionHeader extends JsonWebEncryptionHeader {}
 
 const invalidParameters: any[] = [
   undefined,
@@ -67,29 +67,26 @@ const invalidParameters: any[] = [
 describe("check()", () => {
   const parameters: JsonWebEncryptionHeaderParameters = { alg: "A128GCMKW", enc: "A128CBC-HS256" };
 
-  it("should return false when the provided JSON Web Encryption Header Constructor is invalid.", async () => {
-    expect(check(Buffer as any, parameters)).toBe(false);
+  let joseHeaderCheckSpy: Mock;
+
+  beforeEach(() => {
+    joseHeaderCheckSpy = vi.spyOn(jose.header, "check");
   });
 
-  it.each(invalidParameters)(
-    "should return false when the provided data is not a valid JSON Web Encryption Header Parameters object with a custom JSON Web Encryption Header Constructor.",
-    (_parameters) => {
-      expect(check(CustomJsonWebEncryptionHeader, _parameters)).toBe(false);
-    },
-  );
-
-  it("should return true when the provided data is a valid JSON Web Encryption Header Parameters object with a custom JSON Web Encryption Header Constructor.", () => {
-    expect(check(CustomJsonWebEncryptionHeader, parameters)).toBe(true);
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it.each(invalidParameters)(
     "should return false when the provided data is not a valid JSON Web Encryption Header Parameters object.",
     (_parameters) => {
       expect(check(_parameters)).toBe(false);
+      expect(joseHeaderCheckSpy).toHaveBeenCalledExactlyOnceWith(JsonWebEncryptionHeader, _parameters);
     },
   );
 
   it("should return true when the provided data is a valid JSON Web Encryption Header Parameters object.", () => {
     expect(check(parameters)).toBe(true);
+    expect(joseHeaderCheckSpy).toHaveBeenCalledExactlyOnceWith(JsonWebEncryptionHeader, parameters);
   });
 });

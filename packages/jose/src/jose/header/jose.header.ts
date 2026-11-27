@@ -4,10 +4,10 @@ import { URL } from "node:url";
 import { Objects } from "@avarin/primitives/objects";
 import { Strings } from "@avarin/primitives/strings";
 
-import { InvalidJoseHeaderError } from "../errors/invalid-jose-header.error.ts";
-import { jwk } from "../jwk/index.ts";
-import type { JsonWebKey } from "../jwk/jsonwebkey.ts";
-import type { JoseHeaderParameters } from "./jose-header.parameters.ts";
+import { InvalidJoseHeaderError } from "../../errors/invalid-jose-header.error.ts";
+import { jwk } from "../../jwk/index.ts";
+import type { JsonWebKey } from "../../jwk/jsonwebkey.ts";
+import type { JoseHeaderParameters } from "./jose.header.parameters.ts";
 
 /**
  * Implementation of the JOSE Header.

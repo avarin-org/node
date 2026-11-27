@@ -2,7 +2,6 @@ import { X509Certificate } from "node:crypto";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { InvalidJsonWebKeyError } from "../../errors/invalid-jsonwebkey.error.ts";
 import { getX509CertificateChain } from "./get-x509-certificate-chain.ts";
 
 const fetchMock = vi.fn<typeof globalThis.fetch>();
@@ -84,36 +83,36 @@ describe("getX509CertificateChain()", () => {
   });
 
   it("should throw when providing an invalid X.509 Certificate.", async () => {
-    const error = new InvalidJsonWebKeyError("One or more X.509 Certificates is invalid.");
+    const error = new Error("One or more X.509 Certificates is invalid.");
     await expect(getX509CertificateChain({ x5c: ["0123456789abcdef"] })).rejects.toThrow(error);
   });
 
   it("should throw when one or more X.509 Certificates are not yet valid.", async () => {
     vi.setSystemTime(new Date("2024-01-01T00:00:00Z"));
 
-    const error = new InvalidJsonWebKeyError("One or more X.509 Certificates are not yet valid.");
+    const error = new Error("One or more X.509 Certificates are not yet valid.");
     await expect(getX509CertificateChain({ x5c: pemCertificates })).rejects.toThrow(error);
   });
 
   it("should throw when one or more X.509 Certificates are expired.", async () => {
     vi.setSystemTime(new Date("2028-01-01T00:00:00Z"));
 
-    const error = new InvalidJsonWebKeyError("One or more X.509 Certificates are expired.");
+    const error = new Error("One or more X.509 Certificates are expired.");
     await expect(getX509CertificateChain({ x5c: pemCertificates })).rejects.toThrow(error);
   });
 
   it("should throw when one or more X.509 Certificates were not signed by an X.509 Certificate in the chain.", async () => {
-    const error = new InvalidJsonWebKeyError("Invalid X.509 Certificate Chain.");
+    const error = new Error("Invalid X.509 Certificate Chain.");
     await expect(getX509CertificateChain({ x5c: [pemCertificates[0]!, pemCertificates[2]!] })).rejects.toThrow(error);
   });
 
   it('should throw when the provided "x5t" parameter does not match the SHA-1 Fingerprint of the Certificate.', async () => {
-    const error = new InvalidJsonWebKeyError("Mismatching X.509 Certificate SHA-1 Thumbprint.");
+    const error = new Error("Mismatching X.509 Certificate SHA-1 Thumbprint.");
     await expect(getX509CertificateChain({ x5c: pemCertificates, x5t: "0123456789abcdef" })).rejects.toThrow(error);
   });
 
   it('should throw when the provided "x5t#S256" parameter does not match the SHA-256 Fingerprint of the Certificate.', async () => {
-    const error = new InvalidJsonWebKeyError("Mismatching X.509 Certificate SHA-256 Thumbprint.");
+    const error = new Error("Mismatching X.509 Certificate SHA-256 Thumbprint.");
     await expect(getX509CertificateChain({ x5c: pemCertificates, "x5t#S256": "0123456789abcdef" })).rejects.toThrow(
       error,
     );

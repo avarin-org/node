@@ -1,5 +1,5 @@
-import type { JoseHeaderParameters } from "../../jose/jose-header.parameters.ts";
-import { JoseHeader } from "../../jose/jose-header.ts";
+import type { JoseHeaderParameters } from "../../jose/header/jose.header.parameters.ts";
+import { JoseHeader } from "../../jose/header/jose.header.ts";
 
 /**
  * Checks if the provided data is a valid JOSE Header Parameters object.

@@ -2,7 +2,7 @@ import { Buffer } from "node:buffer";
 
 import { describe, expect, it } from "vitest";
 
-import type { JoseHeaderParameters } from "../../jose/jose-header.parameters.ts";
+import type { JoseHeaderParameters } from "../../jose/header/jose.header.parameters.ts";
 import { checkPartialJoseHeader } from "./check-partial-jose-header.ts";
 
 const invalidParameters: any[] = [

@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { InvalidJsonWebKeyError } from "../../errors/invalid-jsonwebkey.error.ts";
 import { getX509PemCertificateChainFromUrl } from "./get-x509-pem-certificate-chain.ts";
 
 const fetchMock = vi.fn<typeof globalThis.fetch>();
@@ -77,21 +76,21 @@ describe("getX509PemCertificateChainFromUrl()", () => {
   it("should throw when getting an error while calling the provided URL.", async () => {
     fetchMock.mockResolvedValueOnce({ ok: false } as Response);
 
-    const error = new InvalidJsonWebKeyError("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
+    const error = new Error("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
     await expect(getX509PemCertificateChainFromUrl("https://certificate.example.com")).rejects.toThrow(error);
   });
 
   it("should throw when the URL returns an invalid X.509 PEM Certificate Chain.", async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, status: 200, text: async () => "aabbccddeeff" } as Response);
 
-    const error = new InvalidJsonWebKeyError("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
+    const error = new Error("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
     await expect(getX509PemCertificateChainFromUrl("https://certificate.example.com")).rejects.toThrow(error);
   });
 
   it("should throw when the URL returns an empty X.509 PEM Certificate Chain.", async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, status: 200, text: async () => "" } as Response);
 
-    const error = new InvalidJsonWebKeyError("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
+    const error = new Error("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
     await expect(getX509PemCertificateChainFromUrl("https://certificate.example.com")).rejects.toThrow(error);
   });
 

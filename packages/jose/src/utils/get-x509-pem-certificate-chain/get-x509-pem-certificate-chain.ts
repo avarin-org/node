@@ -1,17 +1,15 @@
-import { InvalidJsonWebKeyError } from "../../errors/invalid-jsonwebkey.error.ts";
-
 /**
  * Fetches an X.509 PEM Certificate Chain from the provided URL.
  *
  * @param url X.509 PEM Certificate Chain URL.
  * @returns X.509 PEM Certificate Chain.
- * @throws {InvalidJsonWebKeyError} Failed to parse the X.509 PEM Certificate Chain from the provided URL.
+ * @throws {Error} Failed to parse the X.509 PEM Certificate Chain from the provided URL.
  */
 export async function getX509PemCertificateChainFromUrl(url: string): Promise<string[]> {
   const response = await globalThis.fetch(url);
 
   if (!response.ok) {
-    throw new InvalidJsonWebKeyError("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
+    throw new Error("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
   }
 
   const pemCertificateChain = await response.text();
@@ -21,7 +19,7 @@ export async function getX509PemCertificateChainFromUrl(url: string): Promise<st
   );
 
   if (pemCertificates === null || pemCertificates.length === 0) {
-    throw new InvalidJsonWebKeyError("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
+    throw new Error("Failed to parse the X.509 PEM Certificate Chain from the provided URL.");
   }
 
   return pemCertificates.map((pemCertificate) =>

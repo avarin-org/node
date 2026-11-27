@@ -1,7 +1,7 @@
 import { Strings } from "@avarin/primitives/strings";
 
 import { InvalidJoseHeaderError } from "../../errors/invalid-jose-header.error.ts";
-import { JoseHeader } from "../../jose/jose-header.ts";
+import { JoseHeader } from "../../jose/header/jose.header.ts";
 import { KEY_MANAGEMENT_BACKEND_REGISTRY } from "../../jwa/jwe/alg/key-management.backend.registry.ts";
 import type { KeyManagementBackend } from "../../jwa/jwe/alg/key-management.backend.ts";
 import { CONTENT_ENCRYPTION_BACKEND_REGISTRY } from "../../jwa/jwe/enc/content-encryption.backend.registry.ts";

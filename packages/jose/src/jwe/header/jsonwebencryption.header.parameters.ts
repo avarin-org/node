@@ -1,4 +1,4 @@
-import type { JoseHeaderParameters } from "../../jose/jose-header.parameters.ts";
+import type { JoseHeaderParameters } from "../../jose/header/jose.header.parameters.ts";
 import type { KeyManagementAlgorithm } from "../../jwa/jwe/alg/key-management-algorithm.type.ts";
 import type { ContentEncryptionAlgorithm } from "../../jwa/jwe/enc/content-encryption-algorithm.type.ts";
 import type { CompressionAlgorithm } from "../../jwa/jwe/zip/compression-algorithm.type.ts";

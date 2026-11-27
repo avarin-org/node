@@ -1,7 +1,6 @@
 import { Buffer } from "node:buffer";
 import { X509Certificate } from "node:crypto";
 
-import { InvalidJsonWebKeyError } from "../../errors/invalid-jsonwebkey.error.ts";
 import { getX509PemCertificateChainFromUrl } from "../get-x509-pem-certificate-chain/get-x509-pem-certificate-chain.ts";
 
 interface X509CertificateChainParameters {
@@ -16,7 +15,7 @@ interface X509CertificateChainParameters {
  *
  * @param parameters Parameters containing the X.509 Certificate Chain or its URL.
  * @returns X.509 Certificate Chain.
- * @throws {InvalidJsonWebKeyError} Failed to parse the X.509 Certificate Chain from the provided Parameters.
+ * @throws {Error} Failed to parse the X.509 Certificate Chain from the provided Parameters.
  */
 export async function getX509CertificateChain(
   parameters: X509CertificateChainParameters,
@@ -35,18 +34,18 @@ export async function getX509CertificateChain(
       (pemCertificate) => new X509Certificate(Buffer.from(pemCertificate, "base64")),
     );
   } catch (error: unknown) {
-    throw new InvalidJsonWebKeyError("One or more X.509 Certificates is invalid.", { cause: error });
+    throw new Error("One or more X.509 Certificates is invalid.", { cause: error });
   }
 
   // TODO: Check keyUsage and signatureAlgorithm
   const now = new Date();
 
   if (certificateChain.some((certificate) => now < certificate.validFromDate)) {
-    throw new InvalidJsonWebKeyError("One or more X.509 Certificates are not yet valid.");
+    throw new Error("One or more X.509 Certificates are not yet valid.");
   }
 
   if (certificateChain.some((certificate) => now >= certificate.validToDate)) {
-    throw new InvalidJsonWebKeyError("One or more X.509 Certificates are expired.");
+    throw new Error("One or more X.509 Certificates are expired.");
   }
 
   for (let i = 0; i < certificateChain.length - 1; i += 1) {
@@ -54,7 +53,7 @@ export async function getX509CertificateChain(
     const nextCertificate = certificateChain[i + 1]!;
 
     if (!currentCertificate.verify(nextCertificate.publicKey)) {
-      throw new InvalidJsonWebKeyError("Invalid X.509 Certificate Chain.");
+      throw new Error("Invalid X.509 Certificate Chain.");
     }
   }
 
@@ -63,7 +62,7 @@ export async function getX509CertificateChain(
     const thumbprint = Buffer.from(parameters.x5t, "base64url");
 
     if (!fingerprint.equals(thumbprint)) {
-      throw new InvalidJsonWebKeyError("Mismatching X.509 Certificate SHA-1 Thumbprint.");
+      throw new Error("Mismatching X.509 Certificate SHA-1 Thumbprint.");
     }
   }
 
@@ -72,7 +71,7 @@ export async function getX509CertificateChain(
     const thumbprint = Buffer.from(parameters["x5t#S256"], "base64url");
 
     if (!fingerprint.equals(thumbprint)) {
-      throw new InvalidJsonWebKeyError("Mismatching X.509 Certificate SHA-256 Thumbprint.");
+      throw new Error("Mismatching X.509 Certificate SHA-256 Thumbprint.");
     }
   }
 

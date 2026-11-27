@@ -2,10 +2,10 @@ import { Buffer } from "node:buffer";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { InvalidJoseHeaderError } from "../errors/invalid-jose-header.error.ts";
-import type { JsonWebKeyParameters } from "../jwk/jsonwebkey.parameters.ts";
-import type { JoseHeaderParameters } from "./jose-header.parameters.ts";
-import { JoseHeader } from "./jose-header.ts";
+import { InvalidJoseHeaderError } from "../../errors/invalid-jose-header.error.ts";
+import type { JsonWebKeyParameters } from "../../jwk/jsonwebkey.parameters.ts";
+import type { JoseHeaderParameters } from "./jose.header.parameters.ts";
+import { JoseHeader } from "./jose.header.ts";
 
 const invalidJkus: any[] = [
   undefined,
